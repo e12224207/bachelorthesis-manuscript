@@ -1,0 +1,33 @@
+{    
+    "latex-workshop.latex.recipes": [
+      {
+        "name": "latexmk (xelatex)",
+        //"tools": ["xelatex", "bibtex", "xelatex", "xelatex"]
+        "tools": ["xelatex", "xelatex"]
+      }
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "xelatex",
+            "command": "xelatex",
+            "args": [
+              "-synctex=1",
+              "-interaction=nonstopmode",
+              "-file-line-error",
+              "-output-directory=%OUTDIR%",
+              "%DOCFILE%"
+            ]
+          },
+        //   {
+        //     "name": "bibtex",
+        //     "command": "bibtex",
+        //     "args": [
+        //       "%OUTDIR%/%DOCFILE_FNAME%"
+        //     ]
+        //   }
+    ],
+    // auto-build on save
+    "latex-workshop.latex.autoBuild.run": "never",
+    "latex-workshop.latex.outDir": "./out/"
+  }
+  

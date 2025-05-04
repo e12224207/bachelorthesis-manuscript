@@ -1,0 +1,105 @@
+\documentclass[11pt]{report}
+\usepackage[paper=a4paper,margin=2.5cm]{geometry}
+\usepackage{fontspec}
+
+% Point fontspec at your local fonts folder:
+\setmainfont{EBGaramon}[
+  Path      = font/,       % relative to main.tex
+  Extension = .ttf,
+  UprightFont    = *d12-Regular,   % MyFont-Regular.ttf
+  BoldFont       = *d08-Regular,       % MyFont-Bold.ttf
+  ItalicFont     = *d12-Italic,
+  BoldItalicFont = *d08-Italic
+]
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage[colorlinks,linkcolor=blue,urlcolor=cyan]{hyperref}
+
+%=== Metadata ===
+\newcommand{\thesistitle}{Your Thesis Title Here}
+\newcommand{\authorname}{Your Name}
+\newcommand{\supervisor}{Supervisor Name}
+\newcommand{\institution}{Your University}
+\newcommand{\department}{Your Department}
+\newcommand{\logoimage}{graphics/logo.png} % Path to your logo image
+\newcommand{\submissionmonth}{May}
+\newcommand{\submissionyear}{2025}
+%================
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    % University logo
+    \includegraphics[width=0.25\textwidth]{graphics/tuWienLogo.png}
+    \\[1cm]
+    
+    % Thesis title
+    {\Huge \thesistitle\\[1.5cm]}
+
+    % Project logo under title, smaller size
+    \includegraphics[width=0.15\textwidth]{\logoimage}\\[1cm]
+
+    % Author\maketitle
+    {\Large \authorname\\[0.5cm]}
+  
+    % Department and institution
+    {\large \department\\
+    \institution\\[1.5cm]}
+  
+    % Supervisor
+    {\large Supervisor: \supervisor\\[2cm]}
+  
+    % Submission date
+    {\large \submissionmonth~\submissionyear\\}
+  
+    \vfill
+  
+    % Bottom of the page
+    \vspace*{0.5cm}
+    {\small This thesis is submitted in partial fulfillment of the requirements for the degree of \textit{Bachelor of Science}.}
+  
+  \end{titlepage}
+
+\chapter{Introduction}
+The American Wild West, stretching from the late 18th to the early 20th centuries, was defined by rapid expansion, rugged landscapes, and a unique blend of cultures. Central to this era was the horse, an animal whose presence transformed the ways in which people traveled, communicated, and built communities. Far more than a tool of transportation, the horse became a symbol of freedom, partnership, and survival in a challenging frontier.
+
+\section{Background}
+Horses were introduced to North America by European settlers in the 16th century, but it was during the 19th century that they truly shaped life on the frontier. As ranching, mining, and railroad construction boomed, the horse emerged as a vital asset. Families, traders, and lawmen alike relied on equine companions to traverse vast distances that would have been otherwise impassable on foot or by wagon.
+
+\section{Objectives}
+This document explores how the integration of horses into daily life fostered new patterns of human interaction in the Wild West. We will examine the role of horses in transportation and communication, their influence on social relationships and community formation, and the cultural legacy they left behind.
+
+\section{Main Content}
+
+\section{Transportation and Communication}
+Before the advent of railroads and telegraphs, horses provided the most efficient means to connect distant settlements. Pony Express riders, covering nearly 2,000 miles between Missouri and California, delivered messages in record time, laying the groundwork for modern postal services. Stagecoaches, drawn by teams of horses, carried passengers and mail across rugged terrain, creating new routes and fostering trade between frontier towns.
+
+\section{Social Bonds and Trade}
+The shared responsibility of caring for horses strengthened bonds within and between communities. Roundups, branding events, and horse fairs became social gatherings where ranchers exchanged news, negotiated cattle deals, and formed alliances. Horse trades themselves were often ceremonies of trust, as the animal’s condition and temperament reflected the owner’s reputation and standing among peers.
+
+\subsection{Detailed Point}
+In times of crisis—such as medical emergencies or conflicts—well-trained horses could mean the difference between life and death. Neighbors would band together to escort the sick to the nearest settlement or to deliver urgent supplies, underscoring the interdependence fostered by equine mobility.
+
+\newpage
+
+\part{Continuation}
+
+\section{Warfare and Conflict}
+Horses revolutionized tactics during skirmishes and battles. Cavalry units, comprised of both U.S. Army soldiers and Native American warriors, relied on speed and mobility to execute raids, rescues, and patrols. The horse’s agility in open terrain often determined the outcome of conflicts, reinforcing its strategic importance in shaping territorial control.
+
+\section{Cultural Significance}
+Beyond utility, the horse inspired folklore, art, and music of the West. Cantinas echoed with songs praising mustangs, and painters captured scenes of riders silhouetted against desert sunsets. Rodeos and exhibitions celebrating horsemanship continue today, echoing the traditions of Wild West gatherings where settlers and indigenous peoples showcased their skills.
+
+\section{Conclusion}
+
+\subsection{Summary}
+Through transportation, communication, social cohesion, and cultural expression, horses profoundly influenced human interaction during the Wild West era. Their partnership with humans enabled the exploration and settlement of vast territories, forging connections that endure in American cultural memory.
+
+\subsection{Future Work}
+Further study could investigate regional variations in equine practices, the impact on indigenous communities, and the environmental consequences of large-scale horse herding. Understanding these dimensions enriches our appreciation of how horses shaped the story of the American frontier.
+
+\end{document}
