@@ -15,129 +15,202 @@
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage[colorlinks,linkcolor=blue,urlcolor=cyan]{hyperref}
-
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{}{0pt}{}
 %=== Metadata ===
 \newcommand{\thesistitle}{Your Thesis Title Here}
-\newcommand{\authorname}{Your Name}
-\newcommand{\supervisor}{Supervisor Name}
-\newcommand{\institution}{Your University}
-\newcommand{\department}{Your Department}
+\newcommand{\authorname}{Rafael Tanzer}
+\newcommand{\supervisor}{Michele Chiaria, Simone , Francesco Pontigia and Ezzio Bartocci}
+\newcommand{\institution}{TU Vienna}
+\newcommand{\department}{Cyber-Physical-Systems, ..., ...}
 \newcommand{\logoimage}{graphics/logo.png} % Path to your logo image
 \newcommand{\submissionmonth}{May}
 \newcommand{\submissionyear}{2025}
 %================
 
+\usepackage[backend=biber, style=alphabetic]{biblatex}
+\addbibresource{bibliography/theory.bib}
+
 \begin{document}
 
 \begin{titlepage}
-    \centering
-    \vspace*{1cm}
-    
-    % University logo
-    \includegraphics[width=0.25\textwidth]{graphics/tuWienLogo.png}
-    \\[1cm]
-    
-    % Thesis title
-    {\Huge \thesistitle\\[1.5cm]}
+  \centering
+  \vspace*{1cm}
 
-    % Project logo under title, smaller size
-    \includegraphics[width=0.15\textwidth]{\logoimage}\\[1cm]
+  % University logo
+  \includegraphics[width=0.25\textwidth]{graphics/tuWienLogo.png}
+  \\[1cm]
 
-    % Author\maketitle
-    {\Large \authorname\\[0.5cm]}
-  
-    % Department and institution
-    {\large \department\\
-    \institution\\[1.5cm]}
-  
-    % Supervisor
-    {\large Supervisor: \supervisor\\[2cm]}
-  
-    % Submission date
-    {\large \submissionmonth~\submissionyear\\}
-  
-    \vfill
-  
-    % Bottom of the page
-    \vspace*{0.5cm}
-    {\small This thesis is submitted in partial fulfillment of the requirements for the degree of \textit{Bachelor of Science}.}
-  
-  \end{titlepage}
+  % Thesis title
+  {\Huge \thesistitle\\[1.5cm]}
 
-  \chapter*{Abstract}
-% \addcontentsline{toc}{chapter}{Abstract}
-% % Brief overview of motivations, methods, results, and contributions.
+  % Project logo under title, smaller size
+  \includegraphics[width=0.15\textwidth]{\logoimage}\\[1cm]
 
-% \tableofcontents
-% \listoffigures
-% \listoftables
+  % Author\maketitle
+  {\Large \authorname\\[0.5cm]}
 
-%=== Part I: Theoretical Foundations ===
-\part{Theoretical Foundations}
+  % Department and institution
+  {\large \department\\
+  \institution\\[1.5cm]}
+
+  % Supervisor
+  {\large Supervisor: \supervisor\\[2cm]}
+
+  % Submission date
+  {\large \submissionmonth~\submissionyear\\}
+
+  \vfill
+
+  % Bottom of the page
+  \vspace*{0.5cm}
+  {\small This thesis is submitted in partial fulfillment of the requirements for the degree of \textit{Bachelor of Science}.}
+
+\end{titlepage}
+
+
+\begin{abstract}
+  % Your abstract text here.
+\end{abstract}
+
+\tableofcontents
+
+%=== Part I – Foundations ===%
+\part{Foundations}
 
 \chapter{Introduction}
-\section{Motivation}
-\section{Objectives and Contributions}
-\section{Thesis Outline}
+\section{Motivation and Problem Statement}
 
-\chapter{Background and Related Work}
-\section{Core Concepts in Informatics}
-\section{Existing Systems and Approaches}
-\section{Comparative Analysis}
+CPS team - waht do they need it for
+code growing user base - interconnecticty os , other qualities speaking for the usage of vs code
+- 
+already in possesion of Haskell Checker but
 
-\chapter{Theoretical Framework}
-\section{Mathematical Models}
-\section{Algorithms and Data Structures}
-\section{Technologies and Standards}
+\section{Objectives and Scope}
+The main goal of the thesis was to create a \textit{Language Extension} <title> for \textit{MiniProb}. Language extensions are a big part of 
+VS Code’s extension ecosystem and enable the editor to utilize custom language tooling. Such extensions support the user during the implementation process 
+while writing code, by providing language assistance like syntax validation or code completion. While this implementation targets VS Code, the underlying 
+logic and functionality are not limited to it — through the use of the \textit{Language Server Protocol (LSP)}, the developed tooling can be reused across 
+various editors and IDEs that support the protocol. The core functionality of these extensions stems from \textit{parsers} which, against a formal language 
+definition, convert written text into abstracted parts, validating the code in the process. These parts can then be used to extend the capabilities of the 
+tooling to encompass referential validation, type checking, code completion, diagnostics, and other language services that enhance the development experience.
 
-%=== Part II: Design and Implementation ===
-\part{Design and Implementation}
+In order for parsers to function accordingly, they require formal language definitions or models. These definitions range from various types of grammars to 
+abstract machines such as automata, which together provide the structural and syntactic rules necessary for correct interpretation and validation of source code.
+Based on these definitions, parsers are able to systematically identify the hierarchical structure of a program by recognizing patterns, token sequences, and nested 
+constructs, ensuring that the code adheres to the expected form before any further processing or analysis occurs.
+In this thesis, a generative context-free grammar is used to formally describe \textit{MiniProb}, a domain-specific language (DSL) designed for authoring \textit{POMC} files.
+Based on this grammar, a parser - serving as the foundation - enables the implementation of a fully functional language extension to aid developers writing POMC files.\\
+Ultimately, the resulting extension, titled <title>, is intended to provide comprehensive language support for MiniProc. This includes syntactic analysis 
+through syntax highlighting and validation, accurate resolution of symbol references and code completion as well as the implementation of type checking mechanisms 
+to ensure semantic correctness during development. //maybe basic code completion for expressions
 
-\chapter{System Architecture and Design}
-\section{Requirements Analysis}
-\section{High-level Architecture}
-\section{Component Design}
+An appropriate set of regression tests was developed to ensure the continued correctness and stability of the language tooling.
+These tests include parsing tests, which verify that valid input is correctly recognized and structured according to the grammar; validation tests,
+which ensure that semantic rules are properly enforced and errors are accurately reported; and linking tests, which check that references between symbols
+or declarations are correctly resolved across different parts of a program. Together, these test categories help maintain the integrity of the parser and language services as 
+the implementation evolves.
 
-\chapter{Implementation}
-\section{Development Environment}
-\section{Key Modules and Classes}
-\section{Integration Strategies}
+Lastly, this thesis includes an evaluation of the newly implemented parser, focusing on its correctness and performance in practical usage scenarios.
+The evaluation is based on metrics collected from representative input samples, measuring factors such as parsing speed, memory usage, and error handling.
+Where relevant, comparisons are also drawn against the existing \textit{Haskell}-based parser for \textit{.pomc} files, offering a point of reference to assess
+improvements or trade-offs introduced by the new implementation.
 
-\chapter{Testing and Validation}
-\section{Test Plan and Methodology}
-\section{Unit and Integration Tests}
-\section{Results and Discussion}
+\chapter{Background on Languages \& Grammars}
 
-%=== Part III: Application and Evaluation ===
-\part{Application and Evaluation}
 
-\chapter{Application Usage}
-\section{User Interface and Interaction}
-\section{Use Cases and Workflows}
-\section{Performance Metrics}
+\section{Formal Language Theory}
 
-\chapter{Evaluation}
-\section{Experimental Setup}
-\section{Benchmarking Results}
-\section{User Feedback and Analysis}
+Formal language theory deals with the study of languages – sets of strings constructed from alphabets – and the formal grammars that generate them.
+In contrast to natural languages, which have evolved over centuries under the influence of diverse cultural, historical, and environmental factors, 
+formal languages do not inherently relate to any perceived constructs of our environments and are generally not intuitively understood.
+Additionally, formal languages do not share the rich evolutionary progression — a lengthy process of gradual adaptations and refinements spanning generations — 
+of their natural counterparts. Instead, they employ sets of axiomatic \textit{rules} that describe each language individually.
+The field of formal language theory sprung from linguist Noam Chomsky's attempts during the 1950s to definitively characterize the structure of natural languages
+using mathematical rules.\cite{Jiang_Li_Ravikumar_Regan_2009} ...
 
-%=== Part IV: Conclusion and Future Work ===
-\part{Conclusion and Future Work}
+nalasndlsandas;daskdk
 
-\chapter{Conclusion}
-\section{Summary of Contributions}
-\section{Limitations}
+which describe the language.
+produciton rules and close inspection of models for context sensitive and regular lang as they are used in this.
 
-\chapter{Future Work}
-\section{Potential Extensions}
-\section{Long-term Impact}
+\subsection{Backus–Naur Form (BNF) and Variants}
+\subsection{Grammar Formalisms and Parsing Models}
+
+\section{Language Structure and Paradigms}
+\subsection{Abstract vs. Concrete Syntax}
+\subsection{Declarative Languages}
+
+\section{Domain-Specific Languages (DSLs)}
+\subsection{Characteristics and Use Cases}
+\subsection{Declarative DSLs}
+
+DSL or General (do api prog lang have to be haskell complete? C3, java haskell ->>)
+
+\chapter{Probabilistic Programming \& Cyber-Physical Systems}
+\section{What Is Probabilistic Programming?}
+\section{Inference and Sampling Methods}
+\section{Cyber-Physical Systems: Definitions and Examples}
+\section{Motivation for DSLs in P-P and CPS Contexts}
+
+\chapter{The \textit{Miniprob} DSL}
+\section{Domain and Purpose}
+\section{Syntax Overview}
+\section{Semantics and Example Models}
+
+\chapter{Language Servers, Parsers \& Type Checking}
+https://code.visualstudio.com/api/language-extensions/overview
+\section{Language Server Protocol (LSP) Basics}
+\section{Parser and Syntax Checking}
+\section{Type Checking Functionality}
+\section{Overview of Langium}
+
+%=== Part II – Design \& Implementation ===%
+\part{Design \& Implementation}
+
+\chapter{Requirements \& Technology Survey}
+\section{Functional Requirements}
+\section{Non-functional Requirements}
+\section{Alternative Technologies}
+\section{Justification for Langium \& VS Code}
+
+\chapter{Architectural Design}
+\section{High-Level Architecture Diagram}
+\section{Module Decomposition}
+\section{Data Flow and Control Flow}
+
+\chapter{Implementation Details}
+\section{Langium Grammar Definition for \textit{Miniprob}}
+\section{Semantic Checks and Type System}
+\section{VS Code Extension Points}
+
+\chapter{Testing \& Validation}
+\section{Unit Tests}
+\section{Integration Tests}
+\section{Case Studies \& Examples}
+
+%=== Part III – Evaluation \& Discussion ===%
+\part{Evaluation \& Discussion}
+
+\chapter{Performance \& Usability}
+\section{Parsing Speed}
+\section{Editor Responsiveness}
+\section{User Feedback}
+
+\chapter{Discussion}
+\section{Meeting the Requirements}
+
+\printbibliography
 
 \appendix
-\chapter{Appendix A: Additional Figures}
-\chapter{Appendix B: Code Listings}
 
-\bibliographystyle{plain}
-\bibliography{references}
+\chapter{Full Grammar Specification}
+% Full Miniprob grammar here.
 
+\chapter{Expanded Code Listings}
+% Additional code excerpts.
+
+\chapter{Test Data}
+% Sample inputs, test cases, etc.
 
 \end{document}
