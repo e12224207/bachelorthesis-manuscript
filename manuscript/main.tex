@@ -184,7 +184,7 @@ to define the grammars underpinning its language-assistance features. \ref{sec:l
 Depednming on subsection Grammar Formalisms, mentino the importance of grammars in connectino with programming langs.
 
 The terms \textit{abstract} and \textit{concrete} syntax are primarily encountered in the context of programming language design. While the two concepts follow the common relationship of
-abstract and concrete instances — where one embodies a generalized, meta-level blueprint, while the other encapsulates the concrete, instance-level details — , and the term "syntax" broadly applies to all languages,
+abstract and concrete instances — where one embodies a generalized, meta-level blueprint, while the other encapsulates the concrete, instance-level details — and the term "syntax" broadly applies to all languages,
 the idea of pinning meta-information onto language constructs, somewhat implies further calculations based on the language itself.
 
 
@@ -198,58 +198,79 @@ reporting and tooling. \cite{aho2006compilers}
 
 \subsection{Imperative vs.\ Declarative Languages}
 
-Languages used for further computation can generally be slotted into two overarching paradigms, \textbf{imperative} and \textbf{declarative} languages, ...
-in the way of reaching the desired outcome.
-Declarative languages describe \textit{what} the computation should accomplish by adhering to sets of expressions, constraints or logical statements. \cite{9,10}
-These formulas set the rules and goals characterizing the desired result or relationship of input and output values. The actual control-flow and low-level decisions of
+Languages used for further computation can be analyzed from multiple perspectives and classified with different qualities in mind. \cite{progParadigmsForDummiess}
+For this thesis we focus on slotting languages into two overarching paradigms, \textbf{imperative} and \textbf{declarative} languages, 
+which differentiate the  by inspecting way of reaching the desired outcome.?NOLIKETHIS?
+Declarative languages describe \textit{what} the computation should accomplish by adhering to sets of expressions, constraints or logical statements. \cite{grammarDrivenDSLDebug}
+These formulas set the rules and goals characterizing the desired result or relationship of input and output values. The actual control flow and low-level decisions of
 the execution is left to the specific language implementations and runtime engines.
-The paradigm terms themselves a rather vague adn leave room for interpretation?. It is also the case that many languages do not purely fit into one or the other and lend
-part of their ideas to each other. Eg. haskell, .NET, ...
 
-Imperative more verbose but low level access...
+Generally, because of the vague wording used, the paradigms themselves are not always completely and accurately describing the behaviour of a programming language,
+possibly leading to different concepts overlapping. This difference is especially clear in modern languages, which often implement functionality by borrowing 
+constructs from the opposite paradigm — for example, imperative C\# incorporates declarative features through its LINQ-Library, while Haskell, functional by 
+design, supports imperative-style programming. \cite{netHaskellClaims}\\
 
-\begin{itemize}
-  \item **Imperative**: describe *how* to do things (sequential steps, mutable state, control flow).
-  \item **Declarative**: describe *what* you want (constraints, relationships, goals), leaving execution order to the runtime or solver.
-  \item Key trade-offs: control vs.\ abstraction, predictability vs.\ conciseness, ease of optimization, typical use-cases.
-\end{itemize}
+Imperative languages, in contrast to declarative ones, describe \textit{how} a computation will accomplish the desired end-state by following explicit sequences
+of commands. These commands consist of statements that actively manipulate the computations state, which is typically managed through assignments to variables 
+and taking charge of the control flow with provided language constructs (loops, conditionals, calls, procedures, etc.).
+Consequently, correct execution is no longer responsibility of the underlying system, but the implementation and therefore the programmer itself. The imperative paradigm
+reflect von Neuman machine — accessing memory and hardware directly. This fined grained control enables the use of low-level optimization techniques \cite{lowLvelOpt}. 
+As programmers instruct the machine how to do something, certain performance characteristics and resource constraints can be impelled depending on the context of the computation.
+Such techniques encompass memory and cache management, \textit{Instruction-Set} optimization or compiler optimization.
+
+Verbose is missing?
+
+However, while this explicit control provides developers with great functional freedom, it also places a greater burden on them to manage every detail of execution.
+Because the programmer must specify each step — from how data is stored in memory to the order in which operations occur — imperative code can become verbose and cluttered obscuring the high-level intent.
+Moreover, mutable state and side effects introduce the risk of subtle bugs, especially in concurrent or parallel settings where unintended interactions between state changes
+can lead to race conditions. Also, formal reasoning and verification are more complex, since proving correctness requires tracking every state 
+transition rather than relying on \textit{referentially transparent} expressions.
+
+Typical use cases for imperative programming include algorithmic or process-oriented problems where an explicit series of steps is natural.
+Low-level system programming, embedded development, and performance-sensitive routines frequently rely on imperative constructs to manage hardware resources directly.
+In scenarios that demand fine-grained stateful interactions — such as updating user interfaces incrementally, reading and writing files in a specific order, or
+controlling physical systems via commands — imperative languages shine by giving developers precise command over execution.
+Simulation engines, game logic, and scripting or “recipe”-style automation languages also favor imperatively describing each step to achieve the desired outcome.
 
 \section{Domain-Specific Languages (DSLs)}
-\begin{itemize}
-  \item Definition and motivation: tailor syntax/semantics to a narrow problem domain.
-  \item Classification by paradigm:
-    \begin{itemize}
-      \item **Imperative DSLs** (e.g.\ MiniProb, CUDA, many build systems): embed domain logic in a procedural style.
-      \item **Declarative DSLs** (e.g.\ SQL, HTML, many configuration languages): express constraints or data relationships.
-    \end{itemize}
-  \item Criteria for choosing one over the other: domain control, ease of reasoning, tool support, typical analysis patterns.
-\end{itemize}
 
-\subsection{Imperative DSLs (Your Thesis Focus)}
-\begin{itemize}
-  \item Overview of their structure: explicit state, control flow, side-effects.
-  \item Example: MiniProb (POPACheck)  
-    \begin{itemize}
-      \item Recursive calls, `observe`, mutable grid updates.  
-      \item How it compiles down to a probabilistic push-down automaton.  
-    \end{itemize}
-  \item Pros \& Cons in your domain:  
-    \begin{itemize}
-      \item Pro: fine-grained control, easy to encode sequential reasoning.  
-      \item Con: harder to optimize globally, side-effects can obscure analysis.  
-    \end{itemize}
-  \item Comparison with Declarative DSLs for the same problem (e.g.\ PCTL, PRISM models).  
-\end{itemize}
+Domain-Specific languages are programming or specification languages which are tailored to specific application domain, providing constructs and abstractions
+that capture the domain concepts. \cite{whenHowDSL} In stark contrast to general-purpose languages (GLPs) that aim for broad applicability, a DSL waives generality in favor
+of higher expressive power in its domain of interest. By offering notation closely related to a domains phrasing, a DSL allows solutions to be formulated at the same level
+of abstraction as the domain itself, mapping language primitives onto the domain concepts. Developers, therefore, are able to create programs or specifications more
+productively and securely.
 
-\subsection{Declarative DSLs}
-\begin{itemize}
-  \item What makes a DSL declarative: absence of explicit control flow, emphasis on logical relations.  
-  \item Typical examples in probabilistic modeling: PCTL, PRISM, probabilistic logic programs.  
-  \item Why—despite their advantages—MiniProb remained imperative in POPACheck.  
-\end{itemize}
+The close relationship of DSL and domain furnishes multiple advantages over conventional GLPs: it reduces the amount of general programming knowledge needed, 
+expanding the pool of developers from traditional programmers to also domain experts. Moreover, DSLs declutter code, rather than describing a subproblem of the domain
+with multiple lines of code, fewer are needed because constructs inherently carry domain specific information, also contributing to broader comprehensibility for those familiar with the domain.
+DSLs solutions are also easier to formally verify, as they are restricted to a limited context, than GLPs for which proving correctness is extremely hard.
 
+However, DSLs can suffer from limited scope and flexibility even within their target domain, forcing developers to fall back on general-purpose languages when they need functionality outside the 
+DSL's narrow focus. Furthermore, if the domain itself is complex or rapidly evolving, creating and maintaining a DSL may still demand deep domain expertise, because the abstractions must 
+accurately capture all necessary domain rules and nuances.
 
-DSL or General (do api prog lang have to be haskell complete? C3, java haskell ->>)
+\subsection{Imperative DSLs}
+
+Whichever paradigm a DSL follows is mostly guided by the specifics of the domain to describe. Even though DSLs usually adhere to a declarative approach \cite{sigplanDSL}, which follows from a
+major motivation: wanting to describe \textit{what} is expected of the domain in high-level abstraction, a domain may emit qualities that invoke more imperative thinking.
+If the nature of a domain is inherently composed of sequential actions, consists of procedures or stateful operations, the imperative paradigm is more appropriate.
+Imperative DSLs require the user to script solutions in step-by-step fashion using domain-specific commands and statements. Essentially,the user embeds domain concepts as a sequential programming model,
+where the control flow and state transitions of the domain computations have to be managed.
+
+In domains where fine-grained control and explicit ordering matter, imperative DSLs provide maximal flexibility, because every aspect of execution is adjustable.
+This level of control becomes crucial when timing or order of operations yield different outcomes, or when fine-tuned performance optimizations are required.
+Furthermore, building an imperative DSL is often simpler than creating a declarative one: typically, an interpreters process each command in sequence, 
+or a translator converts DSL instructions into a host general-purpose language.
+
+Mybe just leave the below out
+
+Imperative DSLs shine in scripting and macro contexts, where users sequence domain-specific commands to drive behavior, examples include Excel macros that
+automate spreadsheet tasks or scripts within a game engine that dictate character actions and game logic. They are also well suited to testing frameworks
+and scenario specifications, where user interfaces describe interactions by specifying a timely sequence of user inputs. In robotics and industrial automation, 
+imperative DSLs allow practitioners to program custom action sequences—such as moving a robotic arm
+to pick up an object, then placing it precisely—where each step must follow a strict order to ensure safety and accuracy. More broadly, any process-control 
+domain that relies on precise sequencing and stateful interactions—be it a complex simulation workflow, an interactive operation pipeline, or automated machinery
+—benefits from the clarity and control that an imperative DSL provides.
 
 \chapter{Probabilistic Programming \& Cyber-Physical Systems}
 \section{What Is Probabilistic Programming?}
