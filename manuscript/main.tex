@@ -302,6 +302,7 @@ elements must keep pace with the physical processes, which usually require low-l
 critical sites that may be targets of cyber attacks, guarantying a high standard of \textbf{Security} is essential. Additionally, sensors are not completely reliable — 
 possibly introducing noise to measurements — and environmental conditions can vary drastically leading to \textbf{uncertainty}, which a CPS has to cope with to be resilient. \cite{cpsProbabilisticRobotics}
 
+\label{sec:formal-methods}
 \section{Formal Methods and Model Checking}
 
 CPSs are often deployed in safety-critical environments where utmost importance is placed on reliable operation and functional correctness. Yet reaching high levels of confidence
@@ -310,23 +311,26 @@ components of the system, which can not be effectively tested only employing tra
 specialized procedures that are able to cover and validate the acting components. Unlike conventional simulation based testing, \textit{formal methods} are able to prove correctness against
 formal specifications, thereby providing more reliable results and eliminating potential error sources, such as race conditions or violations of safety properties(unnoticed states).
 
-In formal methods, \textit{theorem proving}, \textit{model checking}, and \textit{runtime verification} are widely recognized as the three main approaches for assuring system correctness. \cite{formalMethodsBig3,formalMethodsCPSCritical}
+In formal methods, \textit{theorem proving}, \textit{model checking}, and \textit{runtime verification} are widely recognized as the three main approaches for assuring
+system correctness\cite{formalMethodsBig3,formalMethodsCPSCritical}.
 All three practices are distinguishable from one another and are tailored for certain scenarios. Runtime verification is a lightweight technique that verifies systems 
 by inspecting their execution trace - often employing automata to detect violations. Theorem proving, in contrast, is an offline and often time intensive 
-process relying on mathematical inference rules to statically validate correctness with a high degree of rigor.
+process relying on mathematical inference rules to statically validate correctness with a high degree of rigor.\\
 
-Model checking is of most interest to us, as the MiniProb DSL \ref{sec:miniprob} was developed with this context in mind. \cite{THEONEANDONLY1}
-Logical Formulas temporal formulas ...
-States blabla ... .. 
+Model checking is of most interest in this case, as the MiniProb DSL \ref{sec:miniprob} was developed with this context in mind. \cite{POPACheck}
+It statically verifies a system by exhaustively exploring the state-space and is considered one of the most successful verification techniques. \cite{formalMethodsCPSCritical}
+The thorough analysis of reachable states, combined with specifications which are expressible in various forms of modal logic,
+offers a strong expressive foundation for property verification \cite{modelCheckingPrinceples}. However, the systematic exploration of states leads to poor performance, especially for model with
+complex and big state spaces. Moreover, as most model checking implementation employ automata-based solutions, systems are usually converted into
+equivalent state machines which can result in an explosion of states.\cite{}
+Model checking is generally only used in conjunction with finite-state machines for aforementioned reasons. Still, theres been advances trying to apply it to infinite state spaces.
+\cite{modelCheckingInfCounter,modelCheckingInfSymb}. The resulting verdicts for infinite-state models are typically approximations or are restricted by bounded analysis,
+such as checking only a finite number of steps or abstracting unbounded data domains. As a result, the verification outcomes may not provide absolute guarantees for all
+possible executions, but rather assurances that hold under specific assumptions, abstractions, or within predefined limits of a system's behavior.
 
-Model checking is an automated formal verification technique used to exhaustively analyze the behavior of finite-state systems against a formally specified set of 
-properties. These properties are typically expressed in temporal logics such as Linear Temporal Logic (LTL) or Computation Tree Logic (CTL), which enable reasoning 
-about sequences of states over time (Baier & Katoen, 2008). A model checker systematically explores all reachable states of the system model to verify whether the 
-temporal logic specification holds. If a property is violated, the tool provides a counterexample trace, aiding in pinpointing the source of the issue (
-  Clarke et al., 1999). The use of logical specifications allows model checking to offer strong correctness guarantees, particularly for safety and liveness 
-  properties in reactive and concurrent systems.
-
-\cite{formalMethodsCPSCritical} explains model checking
+These approaches often rely on \textit{symbolic evaluation} rather than naive enumeration of states. By representing potentially infinite sets of states using logical 
+formulas or data structures such as Binary Decision Diagrams (BDDs) or SMT formulas, symbolic model checking can reason about system behavior without explicitly
+generating every state.
 
 \section{Motivation for PPLs in CPS Contexts}
 
@@ -432,6 +436,34 @@ from it directly \cite{blei2017vi}.
 pOPA ... ref to CPS Model Checking or put chapter after CPS
 
 Inlcude graphic displaying sampling approximations compared to a symbolic state evaluation
+
+\section{Symbolic Semantics and Model Checking for Probabilistic Programs}
+
+While probabilistic programming is typically associated with statistical inference and sampling-based evaluation, there exists an alternative perspective
+that treats probabilistic programs as formal models subject to verification \ref{sec:formal-methods}. In contrast to traditional inference, symbolic evaluation and 
+model checking aim to rigorously analyze all possible executions of a program against formal specifications.
+
+Symbolic approaches differ in that they do not enumerate individual executions or samples, but instead reason over entire sets of possible states and paths using
+abstract representations. This enables analysis of program behavior in a more in-depth and automated way, making it possible to answer questions like:
+“Does this property always hold, regardless of sampling outcomes?” or “What is the probability that this condition is eventually satisfied?”
+
+Such techniques are particularly relevant for verifying probabilistic systems where correctness, safety, or reachability must be guaranteed rather than estimated.
+They also enable reasoning about programs that would be challenging to analyze through sampling alone, such as those involving recursion, nondeterminism, or infinite state
+spaces.
+
+A growing body of foundational work has explored how symbolic and model checking techniques can be adapted to probabilistic 
+settings \cite{BaierClarkeHartonasGarmhausenKwiatkowskaRyan1997,EsparzaKuceraMayr2006,EtessamiYannakakis2012}. This includes approaches based on probabilistic automata, logics for probabilistic reasoning, and
+symbolic representations of state spaces.
+
+Building upon these foundations, the POPACheck tool \cite{POPACheck} represents a pioneering approach to verifying probabilistic programs with recursive structure.
+By translating programs into probabilistic operator precedence automata - a formal model that can represent infinite state spaces - POPACheck allows for the analysis
+of properties expressed in structured temporal logics. This enables verification of systems that lie beyond the scope of most traditional probabilistic programming
+frameworks.
+
+In this context, \emph{MiniProb} is used not for inference, but as a front-end language for describing probabilistic behavior that is ultimately verified through
+model checking. The distinction between sampling-based execution and symbolic verification is presented below where an explanation is provided on how MiniProb 
+programs are evaluated and verified using POPACheck.
+
 
 \label{sec:miniprob}
 \chapter{The \textit{MiniProb} DSL}
