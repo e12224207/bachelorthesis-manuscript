@@ -1,5 +1,6 @@
 \documentclass[11pt]{report}
 \usepackage[paper=a4paper,margin=2.5cm]{geometry}
+\usepackage{multicol}
 \usepackage{fontspec}
 
 % Point fontspec at your local fonts folder:
@@ -180,7 +181,7 @@ to define the grammars underpinning its language-assistance features. \ref{sec:l
 
 \section{Language Structure and Paradigms}
 \subsection{Abstract vs. Concrete Syntax}
-Depednming on subsection Grammar Formalisms, mentino the importance of grammars in connectino with programming langs.
+Depednming on subsection Grammar Formalisms, mentino the importance of grammars in connectino with programming langs.??
 
 The terms \textit{abstract} and \textit{concrete} syntax are primarily encountered in the context of programming language design. While the two concepts follow the common relationship of
 abstract and concrete instances — where one embodies a generalized, meta-level blueprint, while the other encapsulates the concrete, instance-level details — and the term "syntax" broadly applies to all languages,
@@ -249,78 +250,19 @@ If the nature of a domain is inherently composed of sequential actions, consists
 Imperative DSLs require the user to script solutions in step-by-step fashion using domain-specific commands and statements. Essentially,the user embeds domain concepts as a sequential programming model,
 where the control flow and state transitions of the domain computations have to be managed.
 
-In domains where fine-grained control and explicit ordering mat
-for choosing between replacing or recalibrating components—but measured data often reflect intertwined effects and closed-loop corrections. reating a declarative one: typically, an interpreters process each command in sequence, 
-or a translator converts DSL instructions into a host general-purpose language.
-
-Mybe just leave the below out
-
-Imperative DSLs shine in scripting and macro contexts, where users sequence domain-specific commands to drive behavior, examples include Excel macros that
-automate spreadsheet tasks or scripts within a game engine that dictate character actions and game logic. They are also well suited to testing frameworks
-and scenario specifications, where user interfaces describe interactions by specifying a timely sequence of user inputs. In robotics and industrial automation, 
-imperative DSLs allow practitioners to program custom action sequences — such as moving a robotic arm
-to pick up an object, then placing it precisely — where each step must follow a strict order to ensure safety and accuracy. More broadly, any process-control 
-domain that relies on precise sequencing and stateful interactions — be it a complex simulation workflow, an interactive operation pipeline, or automated machinery
-— benefits from the clarity and control that an impera
-for choosing between replacing or recalibrating components—but measured data often reflect intertwined effects and closed-loop corrections. tive DSL provides.
-
-\chapter{Probabilistic Programming \& Cyber-Physical Systems}
-\section{What Is Probabilistic Programming?}
-
-Probabilistic programming is a paradigm that aims to perform statistical analysis using tools yielded by computer science.\cite{introductionprobabilisticprogramming}
-Unifying general-purpose programming and probabilistic modelling enables the presentation of statistical models as a program. Defined by underlying program code, the model is
-embodied by the relations between variables and calculations. The established capabilities of programming languages are often augmented with 
-probabilistic functionality, in ... creating probabilistic programming languages (PPL),\cite{probProgrammingPrinciples} that are closely associated with this paradigm. 
-The enriched syntax enables the creation of more compact models and fosters conciser abstractions of the underlying probabilistic structure, usually providing constructs
-that allow declaring random variables and conditioning of observed data, typical for probabilistic modelling. These constructs form the foundation for specifying core elements
-of statistical models. \textit{Priors} are pre-known and usually drawn from distributions reflecting the initial belief over what value
-\textit{latent variables}/model parameters might take on. \textit{Likelihoods} are also known beforehand representing how data is assumed to be generated given the 
-latent variable for which the \textit{posterior} is to be inferred. Together, these components form the backbone of a probabilistic model and provide the information required
-to compute the posterior distribution, which is grounded in \textbf{Bayesian theory}.\cite{introductionprobabilisticprogramming}
-\\
-
-\textit{Bayes’ Theorem} provides the foundational framework for probabilistic reasoning under uncertainty. It describes how to update prior beliefs about unknown 
-quantities - known as latent variables - based on new evidence, resulting in a posterior distribution. Formally, it states that the posterior is proportional to the
-product of the prior and the likelihood:
-\[
-P(\theta \mid x) \propto P(x \mid \theta) \cdot P(\theta)
-\]
-In probabilistic programming, this principle is applied through models that define prior distributions over latent variables and likelihood functions for 
-observed data. The probabilistic programming language then applies Bayes' Theorem, typically via automated inference algorithms, to compute or approximate the posterior.
-This makes it possible to express complex probabilistic models declaratively, while delegating the computation of posterior beliefs to the underlying inference engine.
-\\
-??INLUDE GRAPHICAL MODESL??
-
-\section{Inference and Sampling Methods}
-
-Inference is the process by which probabilistic models are "executed". Given a model and observed data, the task is to compute the posterior distributions of latent variables.
-Because probabilistic models often include uncertainty and hidden variables, inference is the process that turns the model into concrete answers.
-This process is abstracted and automated, but remains computationally nontrivial. Standard approaches to inference are generally grouped 
-into three main categories- \textit{exact inference}, \textit{sampling-based methods}, and \textit{variational inference}.\cite{bishop2006prml, blei2017vi, goodman2014dippl}.
-
-\subsection*{1. Exact Inference}
-
-Exact inference computes the posterior distribution analytically or through complete enumeration. This is possible only in models with limited complexity where the 
-entire state space can be traversed. Although conceptually straightforward, exact inference quickly becomes infeasible as model size increases, due to the combinatorial
-explosion of possible states.
-
-\subsection*{2. Sampling-Based Inference}
-
-Sampling-based methods approximate the posteriIn probabilistic programming, t
-
-Variational inference formulates inference as an optimization problem. Instead of sampling, it produces a family of approximate distributions and seeks the member that 
-is closest to the true posterior. This involves defining an objective function - often the \textit{evidence lower bound (ELBO)} - and optimizing it using gradient-based methods.
-Variational inference tends to be faster and more scalable than sampling, though it trades off exactness for speed by approximating the posterior rather than sampling
-from it directly \cite{blei2017vi}.
+In domains where fine-grained control and explicit ordering matter, imperative DSLs provide maximal flexibility, because every aspect of execution is adjustable.
+This level of control becomes crucial when timing or order of operations yield different outcomes, or when fine-tuned performance optimizations are required.
+Furthermore, building an imperative DSL is often simpler than creating a declarative one: typically, an interpreters process each command in sequence, 
+or a translator converts DSL instructions into a host general-purpose language. \cite{}
 
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.7\textwidth]{graphics/inferencePlot.png}
-  \caption{Comparison of exact posterior to inference methods}
-  \label{fig:inference_plot}
-\end{figure}
+Imperative DSLs are well suited for scripting and defining macros, where users sequence domain-specific commands to drive behavior. They also shine in combination with testing
+frameworks and scenario specifications, where user interfaces describe interactions by specifying a timely sequence of user inputs. In robotics and industrial automation, 
+imperative DSLs allow to program custom action sequences — such picking up an object, then placing it precisely — where each step must follow a
+strict order to ensure safety and accuracy. More broadly, any process-control domain that relies on precise sequencing and stateful interactions benefits from the clarity
+and control that an imperative DSL provides.
 
+\chapter{Cyber-Physical Systems and Formal Analysis}
 
 \section{Cyber-Physical Systems: Definition and Examples}
 
@@ -360,12 +302,38 @@ elements must keep pace with the physical processes, which usually require low-l
 critical sites that may be targets of cyber attacks, guarantying a high standard of \textbf{Security} is essential. Additionally, sensors are not completely reliable — 
 possibly introducing noise to measurements — and environmental conditions can vary drastically leading to \textbf{uncertainty}, which a CPS has to cope with to be resilient. \cite{cpsProbabilisticRobotics}
 
+\section{Formal Methods and Model Checking}
+
+CPSs are often deployed in safety-critical environments where utmost importance is placed on reliable operation and functional correctness. Yet reaching high levels of confidence
+in a systems behavior remains extremely inside cyber-physical domains.\cite{formalMethodsCPSCritical} This difficulty arises from the complex interactions of all the individual integral 
+components of the system, which can not be effectively tested only employing traditional methods. The inherent entanglement of these systems warrants the use of
+specialized procedures that are able to cover and validate the acting components. Unlike conventional simulation based testing, \textit{formal methods} are able to prove correctness against
+formal specifications, thereby providing more reliable results and eliminating potential error sources, such as race conditions or violations of safety properties(unnoticed states).
+
+In formal methods, \textit{theorem proving}, \textit{model checking}, and \textit{runtime verification} are widely recognized as the three main approaches for assuring system correctness. \cite{formalMethodsBig3,formalMethodsCPSCritical}
+All three practices are distinguishable from one another and are tailored for certain scenarios. Runtime verification is a lightweight technique that verifies systems 
+by inspecting their execution trace - often employing automata to detect violations. Theorem proving, in contrast, is an offline and often time intensive 
+process relying on mathematical inference rules to statically validate correctness with a high degree of rigor.
+
+Model checking is of most interest to us, as the MiniProb DSL \ref{sec:miniprob} was developed with this context in mind. \cite{THEONEANDONLY1}
+Logical Formulas temporal formulas ...
+States blabla ... .. 
+
+Model checking is an automated formal verification technique used to exhaustively analyze the behavior of finite-state systems against a formally specified set of 
+properties. These properties are typically expressed in temporal logics such as Linear Temporal Logic (LTL) or Computation Tree Logic (CTL), which enable reasoning 
+about sequences of states over time (Baier & Katoen, 2008). A model checker systematically explores all reachable states of the system model to verify whether the 
+temporal logic specification holds. If a property is violated, the tool provides a counterexample trace, aiding in pinpointing the source of the issue (
+  Clarke et al., 1999). The use of logical specifications allows model checking to offer strong correctness guarantees, particularly for safety and liveness 
+  properties in reactive and concurrent systems.
+
+\cite{formalMethodsCPSCritical} explains model checking
+
 \section{Motivation for PPLs in CPS Contexts}
-??enumerate the four paragrpahs into 2x2??
 
 Probabilistic programming has multiple fitting applications within CPSs, especially where reasoning under uncertainty is essential. Generally, probabilistic programming
 allows controllers to plan even in unpredictable environments and settings.
 
+\begin{multicols}{2}
 When measurements contain noise or are incorrect, PPL models can still be applied to extract useful information. Instead of treating the raw reading of a sensor as the “truth,”
 the readings are considered samples for a \textit{sensor’s model}. Not only is it possible to reduce the noise in the measurements by calculating the posterior, 
 but those noise characteristics are also used to flesh out the predictive model itself.
@@ -374,21 +342,21 @@ Additionally — with most CPSs employing multiple sensors — a PPL naturally s
 to produce a coherent estimate. By defining each sensor's observation as a conditional distribution, a probabilistic program
 weights each reading according to its uncertainty: more reliable sensors contribute more heavily, while inconsistent or faulty readings are down-weighted or flagged. 
 Inference then yields a joint posterior over the true state, allowing the system to reconcile disagreements between sensors, detect potential sensor failures by inferring 
-latent bias variables, and maintain a quantified confidence.\\
-
+latent bias variables, and maintain a quantified confidence.
+\\
 Which leads us into robotics, a quintessential cornerstone of CPS. Instead of working on raw observational data and making assumptions in incomplete cases, robots can adopt 
 a \textit{belief} based on an observational model \cite{cpsProbabilisticRobotics}. The observational model couples motion dynamics (how actions translate into state 
 transitions) with existing sensor models, providing a full posterior distribution that the robot can use to imply different levels of confidence for its actions.
 Furthermore, robots often operate in changing environments or with components that degrade over time. Within a PPL, unknown parameters, such as friction 
 coefficients or sensor calibration offsets, can be treated as latent variables and perform Bayesian learning to infer them from incoming data. The same inference mechanism used for state 
-estimation thus also adapts the model online, continuously refining both motion dynamics and sensor mappings.\\
-
+estimation thus also adapts the model online, continuously refining both motion dynamics and sensor mappings.
+\\
 A PPL expresses system dynamics probabilistically so that sampling yields a distribution of possible futures. \cite{cpsPredictiveControl} By enforcing “chance constraints” 
 (e.g., “limit the probability of exceeding a safety threshold to 1\%”), inference or Monte Carlo sampling identifies control inputs that optimize expected performance while 
 respecting risk. When the current state is uncertain, planning occurs in belief space — each action triggers a Bayesian update of the state distribution, and planners 
 choose sequences that minimize expected cost given that uncertainty. Simultaneously, online Bayesian learning refines model parameters (like friction or drag) over time, 
-tightening future predictions; as uncertainty shrinks, control can push closer to limits, whereas rising uncertainty leads to more conservative actions.\\
-
+tightening future predictions; as uncertainty shrinks, control can push closer to limits, whereas rising uncertainty leads to more conservative actions.
+\\
 Recent research is looking at ways to utilize PPLs to gather diagnostics of a CPS. \cite{cpsPPLDiagnostics} They authors propose a way to infer potential error causes, that
 might be overlooked otherwise, due to the . 
 This of of great interest to system operators for deciding if either parts have to be replaced or only have to be recelebrated. Because measured data on system deviations
@@ -396,7 +364,77 @@ often reflects complex intertwining causes and \textit{closed-loop corrections},
 first builds a generative model (based on control software and expert insights) that simulates observations from hypothesized error causes. This simulator is then recast 
 as a probabilistic program, allowing Bayesian inference to estimate latent causes (with confidence intervals) from actual measurements.
 
-\chapter{The \textit{Miniprob} DSL}
+\end{multicols}
+
+\chapter{Probabilistic Programming}
+\section{What Is Probabilistic Programming?}
+
+Probabilistic programming is a paradigm that aims to perform statistical analysis using tools yielded by computer science.\cite{introductionprobabilisticprogramming}
+Unifying general-purpose programming and probabilistic modelling enables the presentation of statistical models as a program. Defined by underlying program code, the model is
+embodied by the relations between variables and calculations. The established capabilities of programming languages are often augmented with 
+probabilistic functionality, in ... creating probabilistic programming languages (PPL),\cite{probProgrammingPrinciples} that are closely associated with this paradigm. 
+The enriched syntax enables the creation of more compact models and fosters conciser abstractions of the underlying probabilistic structure, usually providing constructs
+that allow declaring random variables and conditioning of observed data, typical for probabilistic modelling. These constructs form the foundation for specifying core elements
+of statistical models. \textit{Priors} are pre-known and usually drawn from distributions reflecting the initial belief over what value
+\textit{latent variables}/model parameters might take on. \textit{Likelihoods} are also known beforehand representing how data is assumed to be generated given the 
+latent variable for which the \textit{posterior} is to be inferred. Together, these components form the backbone of a probabilistic model and provide the information required
+to compute the posterior distribution, which is grounded in \textbf{Bayesian theory}.\cite{introductionprobabilisticprogramming}
+\\
+
+\textit{Bayes’ Theorem} provides the foundational framework for probabilistic reasoning under uncertainty. It describes how to update prior beliefs about unknown 
+quantities - known as latent variables - based on new evidence, resulting in a posterior distribution. Formally, it states that the posterior is proportional to the
+product of the prior and the likelihood:
+\[
+P(\theta \mid x) \propto P(x \mid \theta) \cdot P(\theta)
+\]
+In probabilistic programming, this principle is applied through models that define prior distributions over latent variables and likelihood functions for 
+observed data. The probabilistic programming language then applies Bayes' Theorem, typically via automated inference algorithms, to compute or approximate the posterior.
+This makes it possible to express complex probabilistic models declaratively, while delegating the computation of posterior beliefs to the underlying inference engine.
+\\
+
+\section{Inference and Sampling Methods}
+
+Inference is the process by which probabilistic models are "executed". Given a model and observed data, the task is to compute the posterior distributions of latent variables.
+Because probabilistic models often include uncertainty and hidden variables, inference is the process that turns the model into concrete answers.
+This process is abstracted and automated, but remains computationally nontrivial. Standard approaches to inference are generally grouped 
+into three main categories- \textit{exact inference}, \textit{sampling-based methods}, and \textit{variational inference}.\cite{bishop2006prml, blei2017vi, goodman2014dippl}.
+
+\subsection*{1. Exact Inference}
+
+Exact inference computes the posterior distribution analytically or through complete enumeration. This is possible only in models with limited complexity where the 
+entire state space can be traversed. Although conceptually straightforward, exact inference quickly becomes infeasible as model size increases, due to the combinatorial
+explosion of possible states.
+
+\subsection*{2. Sampling-Based Inference}
+
+Sampling-based inference approximates the posterior by drawing samples from it, typically using Markov Chain Monte Carlo (MCMC) methods.
+Continuously, random samples are generated from a given distribution - usually the prior or a conditional- and used to progressively approximate
+the posterior with the model being executed repeatedly.
+These approaches are flexible and can handle complex models, but they are often computationally expensive and require many samples to ensure accuracy.
+The resulting samples can then be used to estimate expectations, marginal distributions, or event probabilities.
+
+\subsection*{3. Variational Inference}
+
+Variational inference formulates inference as an optimization problem. Instead of sampling, it produces a family of approximate distributions and seeks the member that 
+is closest to the true posterior. This involves defining an objective function - often the \textit{evidence lower bound (ELBO)} - and optimizing it using gradient-based methods.
+Variational inference tends to be faster and more scalable than sampling, though it trades off exactness for speed by approximating the posterior rather than sampling
+from it directly \cite{blei2017vi}.
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{graphics/inferencePlot.png}
+  \caption{Comparison sample of exact posterior to inference methods}
+  \label{fig:inference_plot}
+\end{figure}
+
+\section{Symbolic Semantics and Model Checking}
+pOPA ... ref to CPS Model Checking or put chapter after CPS
+
+Inlcude graphic displaying sampling approximations compared to a symbolic state evaluation
+
+\label{sec:miniprob}
+\chapter{The \textit{MiniProb} DSL}
 \section{Domain and Purpose}
 \section{Syntax Overview}
 \section{Semantics and Example Models}
