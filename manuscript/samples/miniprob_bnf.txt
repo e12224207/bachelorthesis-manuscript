@@ -1,0 +1,132 @@
+<prog> ::= <decl_list> <func> <func_list>
+
+<decl_list> ::= <decl> ';' <decl_list>
+              | ε
+
+<func_list> ::= <func> <func_list>
+              | ε
+
+<decl> ::= <type> identifier <id_list>
+<id_list> ::= ',' identifier <id_list>
+           | ε
+
+<func> ::= identifier '(' <param_list_opt> ')' '{' <decl_list_in_func> <block> '}'
+
+<param_list_opt> ::= <param_list>
+                   | ε
+
+<decl_list_in_func> ::= <decl> ';' <decl_list_in_func>
+                      | ε
+
+<func_call> ::= identifier '(' <arg_list_opt> ')'
+
+<arg_list_opt> ::= <arg_list>
+                 | ε
+
+<arg_list> ::= <arg> <arg_list_tail>
+<arg_list_tail> ::= ',' <arg> <arg_list_tail>
+                 | ε
+
+<block> ::= <stmt> <stmt_list>
+<block_opt> ::= <block> | ε
+
+<stmt_list> ::= <stmt> <stmt_list>
+              | ε
+
+<stmt> ::= <assignment> ';'
+         | <query> ';'
+         | <observation> ';'
+         | <func_call> ';'
+         | 'throw' ';'
+         | <if_then_else>
+         | <while>
+         | <try_catch>
+
+<assignment> ::= <lval> '=' <assign_rhs>
+<assign_rhs> ::= <expr> | <distribution>
+
+<query> ::= 'query' <func_call>
+
+<observation> ::= 'observe' <expr>
+
+<if_then_else> ::= 'if' '(' <expr> ')' '{' <block_opt> '}' 'else' '{' <block_opt> '}'
+
+<while> ::= 'while' '(' <expr> ')' '{' <block_opt> '}'
+
+<try_catch> ::= 'try' '{' <block_opt> '}' 'catch' '{' <block_opt> '}'
+
+<lval> ::= identifier
+         | identifier '[' <expr> ']'
+
+<distribution> ::= 'Bernoulli' '(' <expr> ',' <expr> ')'
+                 | 'Uniform' '(' <expr> ',' <expr> ')'
+
+<param> ::= <type> <amp_opt> identifier
+<amp_opt> ::= '&'
+            | ε
+
+<param_list> ::= <param> <param_list_tail>
+<param_list_tail> ::= ',' <param> <param_list_tail>
+                    | ε
+
+<arg> ::= <expr>
+
+<expr> ::= <logical_or> <prob_assign_opt>
+
+<prob_assign_opt> ::= <prob_assign>
+                    | ε
+
+<prob_assign> ::= <prob_choice> <expr>
+<prob_choice> ::= '{' <expr> ':' <expr> '}'
+
+<logical_or> ::= <logical_and> <logical_or_tail>
+<logical_or_tail> ::= '||' <logical_and> <logical_or_tail>
+                    | ε
+
+<logical_and> ::= <comparison> <logical_and_tail>
+<logical_and_tail> ::= '&&' <comparison> <logical_and_tail>
+                     | ε
+
+<comparison> ::= <term> <comparison_tail>
+<comparison_tail> ::= <comparison_op> <term> <comparison_tail>
+                    | ε
+<comparison_op> ::= '>' | '>=' | '<' | '<=' | '==' | '!='
+
+<term> ::= <factor> <term_tail>
+<term_tail> ::= ('+' | '-') <factor> <term_tail>
+             | ε
+
+<factor> ::= <division> <factor_tail>
+<factor_tail> ::= '*' <division> <factor_tail>
+               | ε
+
+<division> ::= <unary> <division_tail>
+<division_tail> ::= ('/' | '%') <unary> <division_tail>
+                  | ε
+
+<unary> ::= <unary_op> <unary>
+         | <primary>
+<unary_op> ::= '!' | '-'
+
+<primary> ::= <bool>
+            | <int_literal>
+            | <lval>
+            | '(' <expr> ')'
+
+<identifier> ::= <letter> <ident_tail>
+<ident_tail> ::= <letter_or_digit> <ident_tail>
+               | ε
+<letter> ::= 'a' | 'b' | ... | 'Z' | '_'
+<letter_or_digit> ::= <letter> | <digit>
+<digit> ::= '0' | ... | '9'
+
+<type> ::= 'bool' 
+	| <int_spec> 
+	| <int_spec> '[' <int_literal> ']'
+
+<digit_seq> ::= <digit> <digit_seq> | <digit>
+<int_spec> ::= 'u' <digit_seq>
+             | 's' <digit_seq>
+<int_literal> ::= <digit_seq> <int_spec>
+
+<bool> ::= "true" | "false"

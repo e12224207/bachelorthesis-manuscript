@@ -282,6 +282,17 @@
   volume = {26202649},
   isbn   = {978-0-262-02649-9}
 }
+@article{sato2019formal,
+  author        = {Tetsuya Sato and Alejandro Aguirre and Gilles Barthe and Marco Gaboardi and Deepak Garg and Justin Hsu},
+  title         = {Formal Verification of Higher{-}Order Probabilistic Programs: Reasoning about Approximation, Convergence, Bayesian Inference, and Optimization},
+  journal       = {Proceedings of the ACM on Programming Languages},
+  volume        = {3},
+  number        = {POPL},
+  pages         = {38:1--38:30},
+  year          = {2019},
+  doi           = {10.1145/3290351}
+}
+
 // source material
 @techreport{POPACheck,
   title        = {{POPACheck: a Model Checker for Probabilistic Pushdown Automata}},
@@ -293,6 +304,43 @@
   howpublished = {\url{https://arxiv.org/abs/2502.03956}},
   note         = {Conditionally accepted at CAV 2025}
 }
+@misc{2025modelcheckingprobabilisticoperator,
+      title={Model Checking Probabilistic Operator Precedence Automata}, 
+      author={Francesco Pontiggia and Ezio Bartocci and Michele Chiari},
+      year={2025},
+      eprint={2404.03515},
+      archivePrefix={arXiv},
+      primaryClass={cs.LO},
+      url={https://arxiv.org/abs/2404.03515}, 
+}
+@article{miniproc,
+author = {Chiari, Michele and Mandrioli, Dino and Pontiggia, Francesco and Pradella, Matteo},
+title = {A Model Checker for Operator Precedence Languages},
+year = {2023},
+issue_date = {September 2023},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {45},
+number = {3},
+issn = {0164-0925},
+url = {https://doi.org/10.1145/3608443},
+doi = {10.1145/3608443},
+abstract = {The problem of extending model checking from finite state machines to procedural programs has fostered much research toward the definition of temporal logics for reasoning on context-free structures. The most notable of such results are temporal logics on Nested Words, such as CaRet and NWTL. Recently, Precedence Oriented Temporal Logic (POTL) has been introduced to specify and prove properties of programs coded trough an Operator Precedence Language (OPL). POTL is complete w.r.t. the FO restriction of the MSO logic previously defined as a logic fully equivalent to OPL. POTL increases NWTL’s expressive power in a perfectly parallel way as OPLs are more powerful that nested words.In this article, we produce a model checker, named POMC, for OPL programs to prove properties expressed in POTL. To the best of our knowledge, POMC is the first implemented and openly available model checker for proving tree-structured properties of recursive procedural programs. We also report on the experimental evaluation we performed on POMC on a nontrivial benchmark.},
+journal = {ACM Trans. Program. Lang. Syst.},
+month = sep,
+articleno = {19},
+numpages = {66},
+keywords = {input-driven languages, visibly pushdown languages, model checking, operator precedence languages, precedence oriented temporal logic, Linear temporal logic}
+}
+@misc{guideMiniProb,
+  author       = {Michele Chiari and Francesco Pontiggia and Dino Mandrioli and Matteo Pradella},
+  title        = {{POMC - A Model Checker for Operator Precedence Languages: User Guide}},
+  howpublished = {\url{https://github.com/michiari/POMC/blob/master/docs/guide.pdf}},
+  month        = aug,
+  year         = {2021},
+  note         = {Accessed: 2025-06-16},
+}
+
 // probabilistic formal checking
 @inproceedings{BaierClarkeHartonasGarmhausenKwiatkowskaRyan1997,
   author    = {Christel Baier and Edmund M. Clarke and Vasiliki Hartonas‑Garmhausen
@@ -327,4 +375,14 @@
   pages     = {2:1--2:31},
   year      = {2006},
   doi       = {10.2168/LMCS-2(1:2)2006},
+}
+@techreport{multiAgent,
+  author       = {Yizhou Zhang and Nada Amin},
+  title        = {Semantics and Contextual Equivalence for Probabilistic Programs with Nested Queries and Recursion},
+  institution  = {School of Computer Science, University of Waterloo},
+  type         = {Technical Report},
+  number       = {CS-2021-02},
+  year         = {2021},
+  address      = {Waterloo, Ontario, Canada},
+  note         = {Yizhou Zhang (University of Waterloo); Nada Amin (Harvard University)},
 }
