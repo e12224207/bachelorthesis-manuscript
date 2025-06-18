@@ -1,5 +1,6 @@
 \documentclass[11pt]{report}
 \usepackage[paper=a4paper,margin=2.5cm]{geometry}
+\usepackage{minted}
 \usepackage{multicol}
 \usepackage{fontspec}
 
@@ -15,6 +16,7 @@
 
 \usepackage{microtype}
 \usepackage{graphicx}
+\usepackage{wrapfig}
 \usepackage[colorlinks,linkcolor=blue,urlcolor=cyan]{hyperref}
 \usepackage{titlesec}
 \titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{}{0pt}{}
@@ -168,6 +170,7 @@ By expressing each rule as
 \]
 BNF allows both sequencing and alternation of multiple expansions, enabling language designers to articulate complex, nested structures without exposing the underlying
 automaton states or transition tables. This declarative approach not only supports rigorous specification but also facilitates mechanical parsing, thereby advancing the practice of compiler development and language tooling.
+??Describe constraints of BNF??
 
 While BNF provides a clear, formal way to describe language syntax, it suffers from verbosity and redundancy — pure BNF grammars often become bloated when encoding
 common patterns like optionals or repetitions requiring auxiliary nonterminals for a sufficient description and, over time, has been extended and modified for various
@@ -246,7 +249,7 @@ of higher expressive power in its domain of interest. By offering notation close
 of abstraction as the domain itself, mapping language primitives onto the domain concepts. Developers, therefore, are able to create programs or specifications more
 productively and securely.
 
-The close relationship of DSL and domain furnishes multiple advantages over conventional GLPs: it reduces the amount of general programming knowledge needed, 
+The close relationship of DSL and domain furnishes multiple advantages over conventional GLPs: it reduces the amount of general programming knowledge needed,
 expanding the pool of developers from traditional programmers to also domain experts. Moreover, DSLs declutter code, rather than describing a subproblem of the domain
 with multiple lines of code, fewer are needed because constructs inherently carry domain specific information, also contributing to broader comprehensibility for those familiar with the domain.
 DSLs solutions are also easier to formally verify, as they are restricted to a limited context, than GLPs for which proving correctness is extremely hard.
@@ -480,21 +483,21 @@ programs are evaluated and verified using POPACheck.
   \caption{Comparison of Probabilistic Programming in Traditional Inference vs. Formal Verification}
   \begin{tabular}{|p{4.5cm}|p{5.5cm}|p{5.5cm}|}
     \hline
-    \textbf{Aspect}           & \textbf{Traditional Inference (e.g., Bayesian Modeling)}                             & \textbf{Formal Verification (e.g., Model Checking)}                                    \\
+    \textbf{Aspect}           & \textbf{Traditional Inference (e.g., Bayesian Modeling)}                      & \textbf{Formal Verification (e.g., Model Checking)}                                    \\
     \hline
     Primary Goal              & Estimate posterior distributions over variables (e.g., $P(\theta \mid data)$) & Prove correctness properties about probabilistic behavior (e.g., reachability, safety) \\
     \hline
-    Evaluation Strategy       & Sampling-based execution (e.g., MCMC, SMC, VI)                                       & Symbolic or exhaustive exploration of probabilistic state space                        \\
+    Evaluation Strategy       & Sampling-based execution (e.g., MCMC, SMC, VI)                                & Symbolic or exhaustive exploration of probabilistic state space                        \\
     \hline
-    Execution Semantics       & Program runs as a simulator; samples are drawn during execution                      & Program is interpreted mathematically; all behaviors are analyzed systematically       \\
+    Execution Semantics       & Program runs as a simulator; samples are drawn during execution               & Program is interpreted mathematically; all behaviors are analyzed systematically       \\
     \hline
-    Handling of Randomness    & Uses actual draws from distributions during execution                                & Treats random variables symbolically or via full enumeration                           \\
+    Handling of Randomness    & Uses actual draws from distributions during execution                         & Treats random variables symbolically or via full enumeration                           \\
     \hline
-    Output                    & Posterior samples, estimates, and confidence intervals                               & Probabilistic bounds, expected values, or formally verified properties                 \\
+    Output                    & Posterior samples, estimates, and confidence intervals                        & Probabilistic bounds, expected values, or formally verified properties                 \\
     \hline
-    Typical Model Assumptions & Often uses continuous distributions and models real-world noise                      & Often restricted to discrete, well-defined models for tractability                     \\
+    Typical Model Assumptions & Often uses continuous distributions and models real-world noise               & Often restricted to discrete, well-defined models for tractability                     \\
     \hline
-    Result Guarantees         & Approximate; dependent on convergence and diagnostics                                & Sound (and often complete) within model and logic constraints                          \\
+    Result Guarantees         & Approximate; dependent on convergence and diagnostics                         & Sound (and often complete) within model and logic constraints                          \\
     \hline
   \end{tabular}
   \label{tab:inference_vs_verification}
@@ -510,7 +513,7 @@ call-return semantics - qualities representative of procedural programming - it 
 context-free language, since its structure is tightly coupled with the theory of \textbf{Operator Precedence Languages (OPLs)}, a deterministic subclass of CFLs (see: \ref{sec:formallangs}).
 Programs written in MiniProc can be directly compiled into \textbf{Operator Precedence Automata (OPA)}, which leverage the structured nesting of procedure calls and
 returns, thus enabling automata-based model checking via the \textit{POMC} tool against specifications written in the Precedence-Oriented Temporal Logic (POTL) \cite{miniproc}.
-This conversions is made possible because MiniProc constraints its syntax to comply with the \textit{precedence relations} defined by a given 
+This conversions is made possible because MiniProc constraints its syntax to comply with the \textit{precedence relations} defined by a given
 \textbf{Operator Precedence Matrix (OPM)}, allowing for deterministic and unambiguous parsing.
 ??MAKE SHORTER (note) same for PTLfx below??
 \marginpar{POTL is a temporal logic specifically designed to express properties over OPLs. Extending LTL, it includes modalities that refer to the hierarchical structure induced by procedure calls and returns. This enables formal reasoning about context-sensitive behaviors, such as matching call-return sequences, stack inspection, and structured exception handling.}
@@ -523,21 +526,92 @@ However, with the introduction of non-determinism and probabilistic transitions,
 This transition enables formal verification of MiniProb programs via model checking, supporting \emph{qualitative}, \emph{quantitative}, and \emph{approximate} queries,
 allowing to check whether properties hold with certainty, compute exact satisfaction probabilities, or obtain estimated bounds when exact computation is infeasible \cite{guideMiniProb}.
 
-MiniProb also incorporates expressing higher-order reasoning patterns, such as those involving mutually recursive queries that simulate agents reasoning about each other's 
+MiniProb also incorporates expressing higher-order reasoning patterns, such as those involving mutually recursive queries that simulate agents reasoning about each other's
 beliefs or decisions - a feature common in cognitive modeling and multi-agent systems \cite{multiAgent}.
 
 As a DSL, MiniProb is not intended to offer the general-purpose capabilities of mainstream languages. In particular, it is not Turing-complete:
 it lacks features like unbounded memory manipulation, arbitrary recursion without termination guarantees, or dynamic data structures. Its constructs are deliberately
-limited to ensure compatibility with pOPA translation and to preserve decidability of model checking, which would not be possible in a fully general computational model. 
+limited to ensure compatibility with pOPA translation and to preserve decidability of model checking, which would not be possible in a fully general computational model.
 \\
 
 Ultimately, the purpose behind both MiniProc and MiniProb is to offer a high-level, user-friendly interface for programmers wishing to verify properties of recursive (probabilistic) programs without needing to manually translate their source code into OPA or pOPA representations. These DSLs thus serve as a crucial bridge between real-world programming constructs and the formal models required for rigorous verification.
 
 \section{Syntax}
 
-??reference to BNF of MiniPRob from BNF section??
-MiniProb’s syntax is carefully designed to comply with the constraints of \textbf{Operator Precedence Languages (OPLs)}, ensuring compatibility with \textbf{Operator Precedence Automata (OPAs)} and their probabilistic extensions. To achieve this, the language avoids syntactic ambiguity and enforces structured, well-bracketed constructs that can be parsed deterministically using an \textbf{Operator Precedence Matrix (OPM)}. Within these constraints, MiniProb adopts a \textit{procedural and recursive} programming model, supporting user-defined functions with call-return semantics, local variable declarations, and block-structured control flow. Its syntax includes familiar C-like constructs such as \code{if}/\code{else}, \code{while}, and \code{try}/\code{catch}, alongside typed variables (e.g., \code{bool}, \code{s8}, \code{u16}, including fixed-size arrays). Extending this foundation, MiniProb incorporates core primitives from \textit{probabilistic programming languages}: \code{observe} statements condition execution on logical expressions (with trace rejection semantics), \code{query} triggers inference over program executions, and distributions such as \code{Bernoulli} and \code{Uniform} enable stochastic behavior. Together, these features allow MiniProb programs to be translated into \textbf{probabilistic OPAs (pOPAs)}, supporting formal verification and probabilistic reasoning over recursive computations.
+\begin{wrapfigure}{l}{0.5\textwidth}
+  \centering
+  \[
+    \begin{array}{rcl}
+      prog
+       & \to  & (decl\;\texttt{;})^* \;func^+                                                     \\[6pt]
 
+      decl
+       & \to  & type\;\mathit{id}\;(\texttt{,}\;\mathit{id})^*                                    \\[6pt]
+
+      func
+       & \to  & \mathit{id}\;\texttt{(}
+      (\,type\;\texttt{\&}?\;\mathit{id}
+      (\texttt{,}\;type\;\texttt{\&}?\;\mathit{id})^*\,)?
+      \texttt{)}                                                                                  \\[-2pt]
+       &      & \texttt{\{}(decl\;\texttt{;})^*\;stmt^+\texttt{\}}                                \\[6pt]
+
+      fcall
+       & \to  & \mathit{id}\;\texttt{(}
+      [\,e\;(\texttt{,}\;e)^*\,]
+      \texttt{)}                                                                                  \\[6pt]
+
+      stmt
+       & \to  & lval\;\texttt{=}\;e\;\texttt{;}                                                   \\[-2pt]
+       & \mid & lval\;\texttt{=}\;\texttt{Distribution(...)}\;\texttt{;}                          \\[-2pt]
+       & \mid & (\texttt{query})?\;fcall\;\texttt{;}                                              \\[-2pt]
+       & \mid & \texttt{observe}\;e\;\texttt{;}                                                   \\[-2pt]
+       & \mid & \texttt{throw}\;\texttt{;}                                                        \\[-2pt]
+       & \mid & \texttt{if}\;\texttt{(}e\texttt{)}\;\{\;stmt^*\;\}\;\texttt{else}\;\{\;stmt^*\;\} \\[-2pt]
+       & \mid & \texttt{while}\;\texttt{(}e\texttt{)}\;\{\;stmt^*\;\}                             \\[-2pt]
+       & \mid & \texttt{try}\;\{\;stmt^*\;\}\;\texttt{catch}\;\{\;stmt^*\;\}                      \\[6pt]
+
+      lval
+       & \to  & \mathit{id}\;(\texttt{[}e\texttt{]})?                                             \\[6pt]
+
+      type
+       & \to  & \texttt{bool}
+      \;\mid\;(s\mid u)\;int\;(\texttt{[}int\texttt{]})?                                          \\[6pt]
+    \end{array}
+  \]
+  \caption{Compacted grammar of \texttt{MiniProb}.}
+  \label{fig:ebnf_grammar}
+\end{wrapfigure}
+
+??reference to BNF of MiniPRob from BNF section??
+
+A compacted grammar for MiniProb is shown in \ref{fig:ebnf_grammar} containing the core elements providing enough understanding?>.
+A full BNF grammar can be found in the appendix see \ref{fig:bnf_grammar}.
+A \emph{prog} consists of zero or more top-level declarations followed by one or more function definitions. Each \emph{decl} introduces one or more variables of a
+given \emph{type}, which may be \code{bool}, signed (\code{s}) or unsigned (\code{u}) integers of certain bit-width (e.g., \code{s8}, \code{u16}),
+and optionally fixed-size arrays (e.g., \code{u8[10u4]}). Functions (\emph{func}) consist of an identifier, an optional list of typed parameters (passed by value or
+reference via \code{\&}), and a block containing optional local declarations and at least one statement.
+
+Within function bodies, MiniProb allows for local declarations and familiar C-like statements, including variable assignments (\code{lval = \emph{e};}),
+function calls, and control flow structures such as \code{if}/\code{else}, \code{while} loops, and structured exception handling via \code{try}/\code{catch},
+with \code{throw;} used to abort execution. Left-hand values (\emph{lval}) may refer to scalar variables or indexed array elements, while types follow a compact
+convention, consisting of Booleans and signed or unsigned integers of fixed width.
+
+Probabilistic constructs are central to MiniProb's design. These include sampling from distributions via statements like \code{lval = Distribution(...);},
+currently supporting both \code{Bernoulli} and \code{Uniform} distributions. The \code{observe \emph{e};} construct allows conditioning execution on logical expressions,
+rejecting traces that do not satisfy the observed condition. Inference is triggered through the \code{query \emph{fcall};} statement, which indicates
+the probability evaluation of a function's outcome given a set of observations.
+
+In addition to structured control, MiniProb supports expressions built from literals, variables, and function calls, composed using arithmetic
+operations (\code{+}, \code{-}, \code{*}, \code{/}, \code{\%}), comparison operators (\code{==}, \code{!=}, \code{<}, \code{<=}, etc.), and Boolean connectives
+(\code{!}, \code{\&\&}, \code{||}). These expressions can appear on the right-hand side of assignments or as arguments.
+
+Beyond the standards, MiniProb introduces \emph{probabilistic assignments} to express uncertain choices: $lval = e_1 \{ e_2 : e_3 \} \; e_4$.
+This construct selects $e_1$ with probability $p = e_2 / e_3$, and $e_4$ with probability $1 - p$.
+Multiple such choice blocks can be chained to define multi-way probabilistic decisions, enabling a compact encoding of stochastic control.
+
+Identifiers follow the pattern \code{[a-zA-Z\_][a-zA-Z0-9\_\.:$\sim$]*}, allowing names with symbols like underscores, colons, dots, and tildes.
+Integer literals are annotated explicitly with both value and type, e.g., \code{42s8}, \code{7u16}, where the suffix denotes signedness and bit width.
+Boolean literals are written plainly as \code{true} and \code{false}.
 
 
 \section{Semantics and Example Models}
@@ -585,6 +659,196 @@ custom providers, computators
 \printbibliography
 
 \appendix
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \[
+      \begin{array}{rcl}
+        prog
+         & \to  & (decl\;\texttt{;})^*\;\;func\;func\_list?                                                                \\[6pt]
+
+        decl\_list
+         & \to  & decl\;\texttt{;}\;decl\_list
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        func\_list
+         & \to  & func\;func\_list
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        decl
+         & \to  & type\;\mathit{id}\;id\_list                                                                              \\[6pt]
+
+        id\_list
+         & \to  & \texttt{,}\;\mathit{id}\;id\_list
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        func
+         & \to  & \mathit{id}\;\texttt{(}
+        [\,type\;\texttt{\&}?\;\mathit{id}
+          (\texttt{,}\;type\;\texttt{\&}?\;\mathit{id})^*\,]?
+        \texttt{)}                                                                                                         \\
+         &      & \texttt{\{}(decl\;\texttt{;})^*\;block\;\texttt{\}}                                                      \\[6pt]
+
+        block
+         & \to  & stmt\;stmt\_list                                                                                         \\[6pt]
+
+        block\_opt
+         & \to  & block
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        stmt\_list
+         & \to  & stmt\;stmt\_list
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        stmt
+         & \to  & lval\;\texttt{=}\;expr\;\texttt{;}
+        \;\mid\; lval\;\texttt{=}\;\texttt{Distribution(...)}\;\texttt{;}                                                  \\
+         & \mid & \texttt{query}\;func\_call\;\texttt{;}
+        \;\mid\; \texttt{observe}\;expr\;\texttt{;}                                                                        \\
+         & \mid & func\_call\;\texttt{;}
+        \;\mid\; \texttt{throw}\;\texttt{;}                                                                                \\
+         & \mid & \texttt{if}\;\texttt{(}expr\texttt{)}\;\{\;stmt^*\;\}\;\texttt{else}\;\{\;stmt^*\;\}                     \\
+         & \mid & \texttt{while}\;\texttt{(}expr\texttt{)}\;\{\;stmt^*\;\}                                                 \\
+         & \mid & \texttt{try}\;\{\;stmt^*\;\}\;\texttt{catch}\;\{\;stmt^*\;\}                                             \\[6pt]
+
+        assignment
+         & \to  & lval\;\texttt{=}\;assign\_rhs                                                                            \\[6pt]
+
+        assign\_rhs
+         & \to  & expr
+        \;\mid\; distribution                                                                                              \\[6pt]
+
+        func\_call
+         & \to  & \mathit{id}\;\texttt{(}
+        (expr\;(\texttt{,}\;expr)^*)?
+        \texttt{)}                                                                                                         \\[6pt]
+
+        arg\_list\_opt
+         & \to  & arg\_list
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        arg\_list
+         & \to  & arg\;arg\_list\_tail                                                                                     \\[6pt]
+
+        arg\_list\_tail
+         & \to  & \texttt{,}\;arg\;arg\_list\_tail
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        arg
+         & \to  & expr                                                                                                     \\[6pt]
+
+        lval
+         & \to  & \mathit{id}
+        \;\mid\; \mathit{id}\;\texttt{[}expr\texttt{]}                                                                     \\[6pt]
+
+        distribution
+         & \to  & \texttt{Bernoulli(}expr\texttt{,}expr\texttt{)}
+        \;\mid\; \texttt{Uniform(}expr\texttt{,}expr\texttt{)}                                                             \\[6pt]
+
+        param
+         & \to  & type\;\texttt{\&}?\;\mathit{id}                                                                          \\[6pt]
+
+        param\_list
+         & \to  & param\;param\_list\_tail                                                                                 \\[6pt]
+
+        param\_list\_tail
+         & \to  & \texttt{,}\;param\;param\_list\_tail
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        expr
+         & \to  & logical\_or\;prob\_assign\_opt                                                                           \\[6pt]
+
+        prob\_assign\_opt
+         & \to  & prob\_assign
+        \;\mid\; \epsilon                                                                                                  \\[6pt]
+
+        prob\_assign
+         & \to  & prob\_choice\;expr                                                                                       \\[6pt]
+
+        prob\_choice
+         & \to  & \texttt{\{}\;expr\;\texttt{:}\;expr\;\texttt{\}}                                                         \\[6pt]
+
+        logical\_or
+         & \to  & logical\_and\;(\texttt{||}\;logical\_and)^*                                                              \\[6pt]
+
+        logical\_and
+         & \to  & comparison\;(\texttt{\&\&}\;comparison)^*                                                                \\[6pt]
+
+        comparison
+         & \to  & term\;(comparison\_op\;term)^*                                                                           \\[6pt]
+
+        comparison\_op
+         & \to  & \texttt{>}\;\mid\;\texttt{>=}\;\mid\;\texttt{<}\;\mid\;\texttt{<=}\;\mid\;\texttt{==}\;\mid\;\texttt{!=} \\[6pt]
+      \end{array}
+    \]
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.48\textwidth}
+    \[
+      \begin{array}{rcl}
+
+        term
+         & \to & factor\;(\texttt{+}\;\mid\;\texttt{-})\;factor^*                   \\[6pt]
+
+        factor
+         & \to & division\;(\texttt{*}\;division)^*                                 \\[6pt]
+
+        division
+         & \to & unary\;((\texttt{/}\;\mid\;\texttt{\%})\;unary)^*                  \\[6pt]
+
+        unary
+         & \to & (\texttt{!}\;\mid\;\texttt{-})\;unary
+        \;\mid\; primary                                                            \\[6pt]
+
+        primary
+         & \to & bool
+        \;\mid\; int\_literal
+        \;\mid\; lval
+        \;\mid\; \texttt{(}expr\texttt{)}                                           \\[6pt]
+
+        identifier
+         & \to & letter\;ident\_tail                                                \\[6pt]
+
+        ident\_tail
+         & \to & letter\_or\_digit\;ident\_tail
+        \;\mid\; \epsilon                                                           \\[6pt]
+
+        letter
+         & \to & \texttt{a} \;\mid\; \dots \;\mid\; \texttt{Z} \;\mid\; \texttt{\_} \\[6pt]
+
+        letter\_or\_digit
+         & \to & letter \;\mid\; digit                                              \\[6pt]
+
+        digit
+         & \to & \texttt{0} \;\mid\; \dots \;\mid\; \texttt{9}                      \\[6pt]
+
+        type
+         & \to & \texttt{bool}
+        \;\mid\; int\_spec
+        \;\mid\; int\_spec\;\texttt{[}int\_literal\texttt{]}                        \\[6pt]
+
+        digit\_seq
+         & \to & digit\;digit\_seq
+        \;\mid\; digit                                                              \\[6pt]
+
+        int\_spec
+         & \to & \texttt{u}\;digit\_seq
+        \;\mid\; \texttt{s}\;digit\_seq                                             \\[6pt]
+
+        int\_literal
+         & \to & digit\_seq\;int\_spec                                              \\[6pt]
+
+        bool
+         & \to & \texttt{true} \;\mid\; \texttt{false}
+      \end{array}
+    \]
+  \end{minipage}
+  \caption{Full grammar of MiniProb DSL}
+  \label{fig:bnf_grammar}
+\end{figure}
+
+
 
 % Full Miniprob grammar here.
 

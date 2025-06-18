@@ -1,0 +1,67 @@
+(* zero-or-more: *, one-or-more: +, optional: ? *)
+
+<prog>       = (<decl> ";" )* <func>+ ;
+
+<decl>       = <type> identifier ( "," identifier )* ;
+
+<func>       = identifier "(" [<type> "&"? identifier ( "," <param> )*] ")" 
+               "{" ( <decl> ";" )* <stmt>+ "}" ;
+
+<func_call>  = identifier "(" [<expr> ( "," <expr> )*] ")" ;
+
+<stmt>       = <lval> "=" ( <expr> | <distribution> ) ";"                        
+               | "query" <func_call> ";"               
+               | "observe" <expr> ";"                   
+               | <func_call> ";"                        
+               | "throw" ";"                            
+               | "if" "(" <expr> ")" "{" <stmt>* "}" "else" "{" <stmt>* "}"
+               | "while" "(" <expr> ")" "{" <stmt>* "}"
+               | "try" "{" <stmt>* "}" "catch" "{" <stmt>* "}" ;
+
+<lval>       = identifier ( "[" <expr> "]" )? ;
+<type>       = "bool" | (s|u)<int> ( "[" <int> "]" )? ;
+--
+<assignment> = <lval> "=" ( <expr> | <distribution> ) ;
+
+
+<distribution> = ( "Bernoulli" | "Uniform" )
+                "(" <expr> "," <expr> ")" ;
+
+
+<expr>       = <logical_or> ( <prob_choice> <expr> )? ;
+
+<prob_choice>
+              = "{" <expr> ":" <expr> "}" ;
+
+<logical_or> = <logical_and> ( "||" <logical_and> )* ;
+
+<logical_and>= <comparison> ( "&&" <comparison> )* ;
+
+<comparison> = <term> ( ( "==" | "!=" | "<" | "<=" | ">" | ">=" ) <term> )* ;
+
+<term>       = <factor> ( ( "+" | "-" ) <factor> )* ;
+
+<factor>     = <division> ( "*" <division> )* ;
+
+<division>   = <unary> ( ( "/" | "%" ) <unary> )* ;
+
+<unary>      = ( "!" | "-" ) <unary> | <primary> ;
+
+<primary>    = <bool> 
+               | <int_literal> 
+               | <lval> 
+               | "(" <expr> ")" ;
+
+<arg>        = <expr> ;
+
+<type>       = "bool" 
+               | <int_spec> ( "[" <int_literal> "]" )? ;
+
+(* lexicals, assumed defined by regex elsewhere *)
+identifier  = /[A-Za-z_][A-Za-z0-9_]*/ ;
+int_literal = /[0-9]+(u|s)[0-9]*/ ;
+bool         = "true" | "false" ;
+
+<param>      = <type> "&"? identifier ;
+
+<args>       = <arg> ( "," <arg> )* ;
