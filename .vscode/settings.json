@@ -15,10 +15,10 @@
       "name": "xelatex",
       "command": "xelatex",
       "args": [
+        "-shell-escape",
         "-synctex=1",
         "-interaction=nonstopmode",
-        "-file-line-error",
-        "-shell-escape",
+        "-file-line-error",        
         "-output-directory=%OUTDIR%",
         "%DOCFILE%"
       ]
