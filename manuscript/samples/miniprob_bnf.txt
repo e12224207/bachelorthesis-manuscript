@@ -114,7 +114,7 @@
             | '(' <expr> ')'
 
 <identifier> ::= <letter> <ident_tail>
-<ident_tail> ::= <letter_or_digit> <ident_tail>
+<ident_tail> ::= (<letter_or_digit> | \.\:\~)  <ident_tail>
                | ε
 <letter> ::= 'a' | 'b' | ... | 'Z' | '_'
 <letter_or_digit> ::= <letter> | <digit>

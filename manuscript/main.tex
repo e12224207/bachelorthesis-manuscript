@@ -35,7 +35,7 @@
 \usepackage[backend=biber, style=numeric]{biblatex}
 \addbibresource{bibliography/theory.bib}
 \addbibresource{bibliography/implementation.bib}
-
+\usepackage{./simplebnf}
 \def\code#1{\texttt{#1}}
 
 \begin{document}
@@ -764,12 +764,6 @@ For basic syntax highlighting and lexical analysis, \textbf{TextMate}-style gram
 Meanwhile, incremental parsing frameworks such as \textbf{Tree-sitter}~\cite{Treesitter} have gained popularity for their ability to provide high-performance syntax parsing and error recovery,
 making them ideal for tooling that operates on very large files.
 
-Each approach has its benefits and trade-offs, and the choice depends upon the specific requirements, constraints, and long-term maintainability of the language tooling in question.
-
-
-\chapter{Langium}
-\section{High-Level Architecture Diagram}
-\section{Module Decomposition}
 \section{Data Flow and Control Flow}
 \section{Language Server Protocol}
 
@@ -783,188 +777,243 @@ custom providers, computators
 textmate highlighting
 \section{Testing \& Validation}
 
-\chapter{Testing \& Validation}
-\section{Unit Tests}
-\section{Integration Tests}
-\section{Case Studies \& Examples}
-
-%=== Part III - Evaluation \& Discussion ===%
-\part{Evaluation \& Discussion}
-
 \chapter{Performance \& Usability}
 \section{Parsing Speed}
 \section{Editor Responsiveness}
 \section{User Feedback}
 
-\chapter{Discussion?}
-\section{Meeting the Requirements}
-
 \printbibliography
 
 \appendix
 
-\begin{figure}[htbp]
-  \centering
-  \begin{minipage}[t]{0.48\textwidth}
-    \[
-      \begin{array}{rcl}
-        prog
-         & \to  & (decl\;\texttt{;})^*\;\;func\;func\_list?                                            \\[6pt]
+\begin{bnf}
+  $prog$ : \textsf{Program} ::=
+  | $decl\_list\; func\; func\_list$
+  ;;
+  $decl$ : \textsf{Declaration} ::=
+  | $type\; identifier\; id\_list$
+  | $\epsilon$
+  ;;
+  $decl\_list$ ::=
+  | $decl\; \code{;}\; decl\_list$
+  | $\epsilon$
+  ;;
+  $id\_list$ ::=
+  | \code{,}\; $identifier\; id\_list$
+  | $\epsilon$
+  ;;
+  $func$ : \textsf{Function} ::=
+  | $identifier\; \left(\; param\_list\; \right)\; \left\{\; decl\_list\; block\; \right\}$
+  ;;
+  $func\_call$ : \textsf{Func\-Call} ::=
+  | $identifier\; \left(\; arg\_list\; \right)$
+  ;;
+  $arg$ : \textsf{Argument} ::=
+  | $expr$
+  ;;
+  $arg\_list$ ::=
+  | $arg\; arg\_list\_tail$
+  | $\epsilon$
+  ;;
+  $arg\_list\_tail$ ::=
+  | \code{,} $arg\; arg\_list\_tail$
+  | $\epsilon$
+  ;;
+  $block$ : \textsf{Codeblock} ::=
+  | $stmt\; stmt\_list$
+  ;;
+  $block\_opt$ ::=
+  | $block$
+  | $\epsilon$
+  ;;
+  $stmt$ : \textsf{Statement} ::=
+  | $assignment\;$ \code{;}
+  | $query\;$ \code{;}
+  | $observation\;$ \code{;}
+  | $func\_call\;$ \code{;}
+  | \code{throw} \code{;}
+  | $if\_then\_else$
+  | $while$
+  | $try\_catch$
+  ;;
+  $stmt\_list$ ::=
+  | $stmt\; stmt\_list$
+  | $\epsilon$
+  ;;
+  $assignment$ ::=
+  | $lval\; \code{=}\; assign\_rhs$
+  ;;
+  $assign\_rhs$ ::=
+  | $expr$
+  | $distribution$
+  ;;
+  $query$ : \textsf{Query} ::=
+  | \code{query} $func\_call$
+  ;;
+  $observation$ : \textsf{Conditioning} ::=
+  | \code{observe} $expr$
+  ;;
+  $if\_then\_else$ : \textsf{IfThenElse} ::=
+  | \code{if} $\left(\; expr\; \right) \left\{\; block\_opt\; \right\}$ \code{else} $\left\{\; block\_opt\; \right\}$
+  ;;
+  $while$ : \textsf{While-loop} ::=
+  | \code{while} $\left(\; expr\; \right) \left\{\; block\_opt\; \right\}$
+  ;;
+  $try\_catch$ : \textsf{Try-catch}::=
+  | \code{try} $\left\{\; block\_opt\; \right\} \code{catch} \left\{\; block\_opt\; \right\}$
+  ;;
+  $lval$ ::=
+  | $identifier\;\left[\;expr\;\right]$
+  | $identifier$
+  ;;
+  $distribution$ ::=
+  | \code{Bernoulli} $\left(\;expr\;\code{,}\;expr\;\right)$
+  | \code{Uniform}   $\left(\;expr\;\code{,}\;expr\;\right)$
+  ;;
+  $param$ ::=
+  | $type\;amp\_opt\;identifier$
+  ;;
+  $amp\_opt$ ::=
+  | \code{\&}
+  | $\epsilon$
+  ;;
+  $param\_list$ ::=
+  | $param\;param\_list\_tail$
+  | $\epsilon$
+  ;;
+  $param\_list\_tail$ ::=
+  | \code{,} $param\;param\_list\_tail$
+  | $\epsilon$
+\end{bnf}
 
-        decl\_list
-         & \to  & decl\;\texttt{;}\;decl\_list
-        \;\mid\; \epsilon                                                                              \\[6pt]
+\pagebreak
 
-        func\_list
-         & \to  & func\;func\_list
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        decl
-         & \to  & type\;\mathit{id}\;id\_list                                                          \\[6pt]
-
-        id\_list
-         & \to  & \texttt{,}\;\mathit{id}\;id\_list
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        func
-         & \to  & \mathit{id}\;\texttt{(}
-        [\,type\;\texttt{\&}?\;\mathit{id}
-          (\texttt{,}\;type\;\texttt{\&}?\;\mathit{id})^*\,]?
-        \texttt{)}                                                                                     \\
-         &      & \texttt{\{}(decl\;\texttt{;})^*\;block\;\texttt{\}}                                  \\[6pt]
-
-        block
-         & \to  & stmt\;stmt\_list                                                                     \\[6pt]
-
-        block\_opt
-         & \to  & block
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        stmt\_list
-         & \to  & stmt\;stmt\_list
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        stmt
-         & \to  & lval\;\texttt{=}\;expr\;\texttt{;}
-        \;\mid\; lval\;\texttt{=}\;\texttt{Distribution(...)}\;\texttt{;}                              \\
-         & \mid & \texttt{query}\;func\_call\;\texttt{;}
-        \;\mid\; \texttt{observe}\;expr\;\texttt{;}                                                    \\
-         & \mid & func\_call\;\texttt{;}
-        \;\mid\; \texttt{throw}\;\texttt{;}                                                            \\
-         & \mid & \texttt{if}\;\texttt{(}expr\texttt{)}\;\{\;stmt^*\;\}\;\texttt{else}\;\{\;stmt^*\;\} \\
-         & \mid & \texttt{while}\;\texttt{(}expr\texttt{)}\;\{\;stmt^*\;\}                             \\
-         & \mid & \texttt{try}\;\{\;stmt^*\;\}\;\texttt{catch}\;\{\;stmt^*\;\}                         \\[6pt]
-
-        assignment
-         & \to  & lval\;\texttt{=}\;assign\_rhs                                                        \\[6pt]
-
-        assign\_rhs
-         & \to  & expr
-        \;\mid\; distribution                                                                          \\[6pt]
-
-        func\_call
-         & \to  & \mathit{id}\;\texttt{(}
-        (expr\;(\texttt{,}\;expr)^*)?
-        \texttt{)}                                                                                     \\[6pt]
-
-        arg\_list\_opt
-         & \to  & arg\_list
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        arg\_list
-         & \to  & arg\;arg\_list\_tail                                                                 \\[6pt]
-
-        arg\_list\_tail
-         & \to  & \texttt{,}\;arg\;arg\_list\_tail
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        arg
-         & \to  & expr                                                                                 \\[6pt]
-
-        lval
-         & \to  & \mathit{id}
-        \;\mid\; \mathit{id}\;\texttt{[}expr\texttt{]}                                                 \\[6pt]
-
-        distribution
-         & \to  & \texttt{Bernoulli(}expr\texttt{,}expr\texttt{)}
-        \;\mid\; \texttt{Uniform(}expr\texttt{,}expr\texttt{)}                                         \\[6pt]
-
-        param
-         & \to  & type\;\texttt{\&}?\;\mathit{id}                                                      \\[6pt]
-
-        param\_list
-         & \to  & param\;param\_list\_tail                                                             \\[6pt]
-
-        param\_list\_tail
-         & \to  & \texttt{,}\;param\;param\_list\_tail
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        expr
-         & \to  & logical\_or\;prob\_assign\_opt                                                       \\[6pt]
-
-        prob\_assign\_opt
-         & \to  & prob\_assign
-        \;\mid\; \epsilon                                                                              \\[6pt]
-        completion
-         & \to  & factor\;(\texttt{+}\;\mid\;\texttt{-})\;factor^*                                     \\[6pt]
-
-        factor
-         & \to  & division\;(\texttt{*}\;division)^*                                                   \\[6pt]
-
-        division
-         & \to  & unary\;((\texttt{/}\;\mid\;\texttt{\%})\;unary)^*                                    \\[6pt]
-
-        unary
-         & \to  & (\texttt{!}\;\mid\;\texttt{-})\;unary
-        \;\mid\; primary                                                                               \\[6pt]
-
-        primary
-         & \to  & bool
-        \;\mid\; int\_literal
-        \;\mid\; lval
-        \;\mid\; \texttt{(}expr\texttt{)}                                                              \\[6pt]
-
-        identifier
-         & \to  & letter\;ident\_tail                                                                  \\[6pt]
-
-        ident\_tail
-         & \to  & letter\_or\_digit\;ident\_tail
-        \;\mid\; \epsilon                                                                              \\[6pt]
-
-        letter
-         & \to  & \texttt{a} \;\mid\; \dots \;\mid\; \texttt{Z} \;\mid\; \texttt{\_}                   \\[6pt]
-
-        letter\_or\_digit
-         & \to  & letter \;\mid\; digit                                                                \\[6pt]
-
-        digit
-         & \to  & \texttt{0} \;\mid\; \dots \;\mid\; \texttt{9}                                        \\[6pt]
-
-        type
-         & \to  & \texttt{bool}
-        \;\mid\; int\_spec
-        \;\mid\; int\_spec\;\texttt{[}int\_literal\texttt{]}                                           \\[6pt]
-
-        digit\_seq
-         & \to  & digit\;digit\_seq
-        \;\mid\; digit                                                                                 \\[6pt]
-
-        int\_spec
-         & \to  & \texttt{u}\;digit\_seq
-        \;\mid\; \texttt{s}\;digit\_seq                                                                \\[6pt]
-
-        int\_literal
-         & \to  & digit\_seq\;int\_spec                                                                \\[6pt]
-
-        bool
-         & \to  & \texttt{true} \;\mid\; \texttt{false}
-      \end{array}
-    \]
-  \end{minipage}
-  \caption{Full grammar of MiniProb DSL}
-  \label{fig:bnf_grammar}
-\end{figure}
-
+\begin{bnf}
+  $expr$ ::=
+  | $logical\_or\;prob\_assign\_opt$
+  ;;
+  $prob\_assign\_opt$ ::=
+  | $prob\_assign$
+  | $\epsilon$
+  ;;
+  $prob\_assign$ ::=
+  | $prob\_choice\;expr$
+  ;;
+  $prob\_choice$ ::=
+  | $\left\{\;expr\;\code{\:}\;expr\;\right\}$
+  ;;
+  $logical\_or$ ::=
+  | $logical\_and\;logical\_or\_tail$
+  ;;
+  $logical\_or\_tail$ ::=
+  | $\vert\vert\; logical\_and\;logical\_or\_tail$
+  | $\epsilon$
+  ;;
+  $logical\_and$ ::=
+  | $comparison\;logical\_and\_tail$
+  ;;
+  $logical\_and\_tail$ ::=
+  | \code{\&\&} $comparison\;logical\_and\_tail$
+  | $\epsilon$
+  ;;
+  $comparison$ ::=
+  | $term\;comparison\_tail$
+  ;;
+  $comparison\_tail$ ::=
+  | $comparison\_op\;term\;comparison\_tail$
+  | $\epsilon$
+  ;;
+  $comparison\_op$ ::=
+  | \code{>}
+  | \code{>=}
+  | \code{<}
+  | \code{<=}
+  | \code{==}
+  | \code{!=}
+  ;;
+  $term$ ::=
+  | $factor\;term\_tail$
+  ;;
+  $term\_tail$ ::=
+  | \code{+} $factor\;term\_tail$
+  | \code{-} $factor\;term\_tail$
+  | $\epsilon$
+  ;;
+  $factor$ ::=
+  | $division\;factor\_tail$
+  ;;
+  $factor\_tail$ ::=
+  | \code{*} $division\;factor\_tail$
+  | $\epsilon$
+  ;;
+  $division$ ::=
+  | $unary\;division\_tail$
+  ;;
+  $division\_tail$ ::=
+  | \code{/} $unary\;division\_tail$
+  | \code{\%} $unary\;division\_tail$
+  | $\epsilon$
+  ;;
+  $unary$ ::=
+  | $unary\_op\;unary$
+  | $primary$
+  ;;
+  $unary\_op$ ::=
+  | \code{!}
+  | \code{-}
+  ;;
+  $primary$ ::=
+  | $bool$
+  | $int\_literal$
+  | $lval$
+  | $\left(\;expr\;\right)$
+  ;;
+  $identifier$ ::=
+  | $letter\;ident\_tail$
+  ;;
+  $ident\_tail$ ::=
+  | $letter\_or\_digit\;ident\_tail$
+  | \code{.} $ident\_tail$
+  | $\colon\; ident\_tail$
+  | \code{~} $ident\_tail$
+  | $\epsilon$
+  ;;
+  $letter$ ::=
+  | \code{a}
+  | \code{b}
+  | …
+  | \code{Z}
+  | \code{\_}
+  ;;
+  $digit$ ::=
+  | \code{0}
+  | …
+  | \code{9}
+  ;;
+  $letter\_or\_digit$ ::=
+  | $letter$
+  | $digit$
+  ;;
+  $type$ ::=
+  | \code{bool}
+  | $int\_spec$
+  | $int\_spec\;\left[\;int\_literal\;\right]$
+  ;;
+  $digit\_seq$ ::=
+  | $digit\;digit\_seq$
+  | $digit$
+  ;;
+  $int\_spec$ ::=
+  | \code{u} $digit\_seq$
+  | \code{s} $digit\_seq$
+  ;;
+  $int\_literal$ ::=
+  | $digit\_seq\;int\_spec$
+  ;;
+  $bool$ ::=
+  | \code{true}
+  | \code{false}
+\end{bnf}
 
 
 % Full Miniprob grammar here.
