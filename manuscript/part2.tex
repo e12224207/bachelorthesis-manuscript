@@ -53,21 +53,85 @@ making them ideal for tooling that operates on very large files.
 
 Langium is a young language engineering framework inspired by the accomplishments of \verb|Xtext|, striving to evolve into a similarly comprehensive and widely-used technology stack.\cite{LangiumWeb}
 Its goal is to lower the barrier to entry for language design and implementation, opening the field to new users and fostering the growth of its user base.
-To achieve this, Langium embraces the extensibility of the Visual Studio Code ecosystem and its extension pipeline, providing a rich set of built-in
-capabilities—including command-line tooling, code generation, interpretation, and seamless editor integration. All of this is pursued with a strong focus on quality and
-maintainability, ensuring that both newcomers and experienced developers can build robust, sustainable language tooling and domain-specific environments.
+To achieve this, Langium embraces the extensibility of the Visual Studio Code ecosystem and its extension pipeline, provides a rich set of built-in
+capabilities while strongly focusing on quality and maintainability, ensuring that newcomers and experienced developers alike can build robust, sustainable language tooling.
 
 Although Langium is capable of defining general-purpose languages, its design is primarily optimized for domain-specific languages (DSLs), targeting languages with a limited range of abstraction and complexity.
 Creating a fully featured GPL is a highly exhaustive endeavor that demands extensive semantic modeling, thorough tooling, and a substantial team of developers.
 In contrast, Langium is tailored to lower the entry barrier for language design, making it an ideal choice for building DSLs that solve specific, well-defined problems.
 \\
-t
 
-\section{Language Server Protocol}
+\section*{Technical Details \& Features}
+
+Langium is an open-source framework for building programming languages and DSL tooling, distributed under the MIT license and backed by the Eclipse Foundation \cite{LangiumGit}.
+Its open-source nature encourages collaboration and continuous improvement through active engagement with the community.
+\begin{multicols}{2}
+  \begin{itemize}
+    \item At its core, Langium builds upon \verb|Chevrotain|, a customizable JavaScript parser engine that is highly optimized. Chevrotain constructs an internal prediction DFA \cite{sujew2022enabling}
+          from the grammar's production rules to implement its configurable LL($k$) lookahead mechanism, allowing the look-ahead depth $k$ to be tuned for both performance and
+          expressiveness. Moreover, Langium exposes this configurability directly - authors can adjust the parser's \verb|maxLookahead| setting to manage grammar complexity and
+          parsing speed. After parsing, Chevrotain produces a Concrete Syntax Tree (CST), which Langium then converts into a typed Abstract Syntax Tree (AST) using the visitor pattern:
+          by extending Chevrotain's own Visitor interface, Langium traverses the CST and emits AST nodes, preserving semantic structure while discarding syntactic noise.
+          Langium does not incrementally parse documents (i.e., it does not reuse prior parse results to update only modified regions), yet it still offers significant performance
+          benefits compared to alternative engines \cite{Chevrotain}, complementing its generation of precise ASTs and CSTs and its robust error recovery capabilities. The error recovery is
+          implemented with single-token insertion and deletion strategies to correct unexpected or missing tokens, alongside rule-level resynchronization that discards input until a defined
+          recovery point is reached, to maintain parser continuity in the face of syntax errors.
+    \item EBNF like grammar definition - own DSL .langium -.  includes reference def -> linking and resolvement
+    \item In addition to its core language analysis capabilities, Langium offers further extensibility: its generator API traverses ASTs and CSTs to produce arbitrary outputs
+          - whether transpiled or compiled code, structured data formats such as JSON, XML, or Markdown, or custom domain-specific representations - and thus supports downstream
+          processing, tooling, or integration into build and deployment pipelines.
+          Langium projects can also be scaffolded into a command-line interface, registering commands for parsing, validation, generation, and LSP serving; each command invokes the
+          corresponding language services to parse source files, apply validation rules, execute generator or interpreter routines, and emit results, thereby enabling a cohesive
+          suite of tools, that leverage Langium's core capabilities across diverse environments.
+    \item Leveraging established and widely adopted ecosystems is central to the design of Langium, allowing it to benefit from mature tools, protocols, and conventions.
+          As a result, it adopts the LSP - standardizing language tooling across platforms and environments - to enable seamless integration with editors and IDEs such as Visual Studio Code and Eclipse Theia.
+          In the same vein, it is developed in TypeScript and distributed via npm, which allows it to build upon the robust tooling, typing support, and package infrastructure of the JavaScript and TypeScript landscapes.
+    \item To further streamline the DSL development process, Langium provides a dedicated scaffolding tool based on \verb|Yeoman|. This generator automates the creation of a
+          fully configured project, including a grammar template, build pipelines, and example code for parsers, validations, and editors. Removing boilerplate setup provides a
+          standardized structure to build upon and saves developers significant time and effort, making Langium a practical and accessible platform.
+  \end{itemize}
+\end{multicols}
+
+\section{High-Level Architecture Diagram}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{graphics/langiumArchitecture.png}
+  \caption{Architecture overview of a Langium project, showing core services, entry points, and integrations.}
+  \label{fig:langium-architecture}
+\end{figure}
+
+
+\section{Module Decomposition}
+describe diretories
+what do waht do? generators, cli, validation, custom services...
+
+syntax TextMate Monarch
+
+\begin{description}
+  \item[\texttt{cli/cli-util.ts}] Shared helper routines for the CLI (file I/O, path resolution, error reporting).
+  \item[\texttt{cli/generator.ts}] Yeoman-based scaffolder that bootstraps a new Langium DSL project with templates and example code.
+  \item[\texttt{cli/main.ts}] Entry point for the CLI: parses arguments and dispatches subcommands (generate, validate, serve-lsp).
+  \item[\texttt{directory.txt}] Snapshot of the directory structure, typically generated by \texttt{tree}, for documentation.
+  \item[\texttt{extension/main.ts}] VS Code extension bootstrap: launches the LSP server, sets up the client, handles activation/deactivation.
+  \item[\texttt{language/generated/ast.ts}] Auto-generated interfaces for each AST node, defining the DSL’s abstract syntax.
+  \item[\texttt{language/generated/grammar.ts}] Auto-generated Chevrotain grammar: token definitions, regex patterns, and rules.
+  \item[\texttt{language/generated/module.ts}] DI module binding parser, lexer, CST visitor, and other services into Langium’s registry.
+  \item[\texttt{language/hello-world.langium}] The Langium grammar file: terminal and parser rule definitions in Langium DSL.
+  \item[\texttt{language/hello-world-module.ts}] Extension of the generated module for custom services (linkers, formatters, completions).
+  \item[\texttt{language/hello-world-validator.ts}] Hand-written semantic validation rules (e.g., name collisions, type checks).
+  \item[\texttt{language/main-browser.ts}] Browser entry point for embedding the language (e.g., in Monaco), using WebSocket/Worker transport.
+  \item[\texttt{language/main.ts}] Node-based language-server entry point: configures FS adapter, instantiates services, starts LSP.
+  \item[\texttt{setupCommon.ts}] Registers services common to both Node and browser (grammar access, CST→AST visitor, linking, validation).
+  \item[\texttt{setupExtended.ts}] Builds on \texttt{setupCommon} to add IDE features (formatting, folding, hover, semantic tokens).
+  \item[\texttt{setupClassic.ts}] Classic Node setup: invokes \texttt{setupExtended}, plugs in Node FS and LSP server, exports startup function.
+\end{description}
 
 
 \section{Data Flow and Control Flow}
+
 \section{Language Server Protocol}
+control flow of lsp from file to lsp to editor
 
 custom providers, computators
 
@@ -76,7 +140,7 @@ custom providers, computators
 \section{Langium Grammar Definition for \textit{Miniprob}}
 \section{Type System and Semantic Checks}
 \section{VS Code Extension Points}
-textmate highlighting
+textmate highlighting lang-config.json
 \section{Testing \& Validation}
 
 \chapter{Performance \& Usability}
