@@ -1,6 +1,3 @@
-%=== Part II - Design \& Implementation ===%
-\part{Design \& Implementation}
-
 \chapter{Requirements and Technological Context}
 
 As discussed in in the introduction \ref{sec:scope}, the main aim is the development of a VS Code Language extension that operates on par with
@@ -97,7 +94,7 @@ Its open-source nature encourages collaboration and continuous improvement throu
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{graphics/langiumArchitecture.png}
-  \caption{Architecture overview of a Langium project, showing core services, entry points, and integrations.}
+  \caption{Architecture overview of a Langium project}
   \label{fig:langium-architecture}
 \end{figure}
 
@@ -106,9 +103,29 @@ Its open-source nature encourages collaboration and continuous improvement throu
 describe diretories
 what do waht do? generators, cli, validation, custom services...
 
+Langium projects can easily be created with the support of the scaffolding tool \verb|Yeoman|, producing a structured mock project including a sample language definition.
+Most of the definitions are found in the \verb|src| directory \ref{fig:langium-architecture}, encompassing fnctionality for the Language Server, the extension and actual language tooling.
+
+\begin{description}
+  \item[\code{language/}] Assembles the core of any Langium project. It includes the \code{.langium} file, in which the custom language grammar is defined, as well as the code that starts the Language Server with all necessary services bundled.
+  \item[\code{cli/}] Provides functionality for CLI interactions, command parsing, and generators. The generators in this folder invoke processes that generate artifacts from the language and input files;
+  they are typically used only offline and are called once rather than continuously via the CLI and support efficient pipelining.
+  \item[\code{extension/}] Contains the VS Code extension bootstrap code needed to connect to the Language Server and utilize LSP support features. All folders except the CLI/ are bundled into the extension itself.
+  \item[\code{generated/}] Contains artifacts produced from the grammar definition in the \code{.langium} file. This includes TypeScript AST type definitions, which are essential for further analysis and validation, as well as the preliminary parsed grammar rules formatted for the Chevrotain engine to generate parsers.
+  \item[\textbf{Services}] The Services in Langium are a collection of utility classes and helper functions offered to every component of a language project via dependency injection. They cover an extensive range of functionality, from LSP-specific features - such as providers for context-aware code completion, rich hover tooltips, signature help, go-to-definition and find-references - to core language utilities that expose parsed documents as both AST and CST models, manage workspace state and context information (including indexing, scoping, and name resolution), synchronize the in-memory document model and perform validation checks. Because the parts are wired up as an injectable service, precise consumptions of the capabilities needed is possible. Morover it Langium enables developers to swap in custom implementations to extend the language's behavior. ..expand on CustpmServices
+\end{description}
+
+
+Modules  .... register services, expose interfaces
+
+Although the crucial segments are located inside \code{/src}, files of interest ... Szntax config
+
 syntax TextMate Monarch
 
 Validation.ts  was already placed in /language, subsequenntly, other custom services also implementd here
+
+Lastly, situated at top-level in the \verb|src| directory are three files: \verb|setup....ts| \verb|setup....ts| \verb|setup....ts|, which are invoked
+by 
 
 \begin{description}
   \item[\texttt{cli/cli-util.ts}] Shared helper routines for the CLI (file I/O, path resolution, error reporting).
