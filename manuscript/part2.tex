@@ -127,14 +127,10 @@ Most of the definitions are found in the \verb|src| directory \ref{fig:langium-a
 
 
 
-Modules  .... register services, expose interfaces, auto generated service added to DI container and custom service added to DI container
+Modules in language/ generated/ .... register services, expose interfaces, auto generated service added to DI container and custom service added to DI container
 
-Although the crucial segments are located inside \code{/src}, files of interest ... Szntax config
+Although the core logic resides in `/src`, files of interest at the project root include the standard npm `package.json` and two Langium-specific configs: **langium-config.json**, which declares the language ID, grammar entry point, file extensions, lookahead settings and—in its `syntaxes` section—output targets for syntax definitions, and **language-configuration.json**, which governs editor behaviors such as comment delimiters, bracket pairs and auto-closing rules. In particular, the `syntaxes` entry in **langium-config.json** drives the generation of a `.monarch.ts` module (for the Monarch tokenizer used by Monaco-based editors) and a `.tmLanguage.json` file (for VS Code’s TextMate engine). The `.monarch.ts` file specifies tokenization rules, keyword sets, regex-based scopes and contextual patterns to enable dynamic, real-time highlighting, whereas the TextMate grammar maps regex patterns to semantic scopes that underpin VS Code’s coloring, bracket matching and code folding. Customizing these definition files allows developers to implement nuanced, context-sensitive highlighting—such as semantic theming and advanced pattern recognition—that cannot be exhaustively defined by grammar rules alone.
 
-syntax TextMate Monarch(ignored as no web solution or sandboxing is drawn from only vs code -> textmate)
-
-Lastly, situated at top-level in the \verb|src| directory are three files: \verb|setup....ts| \verb|setup....ts| \verb|setup....ts|, which are ...
-by ... to ...
 
 
 Lastly, situated at top-level in the \code{src/} directory are three files: `setupCommon.ts`, `setupClassic.ts`, and `setupExtended.ts`, which serve as entry points for configuring your language environment. Each exports a factory function used by your VS Code extension and CLI generators to assemble and wire up the Langium services with the appropriate feature set — `setupCommon` for shared core services, `setupClassic` for the standard LSP-focused configuration, and `setupExtended` for an enhanced setup that includes advanced validation, formatting, and other extended capabilities.
