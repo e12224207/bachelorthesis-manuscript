@@ -588,7 +588,7 @@ These constructs include \code{probabilistic query: ...} defining the type of qu
 
 To support reliable analysis and ensure well-formed behavior, MiniProb enforces a few core semantic rules. Each program must include a \texttt{main} function with no parameters. When passing arguments by reference (value-result), the actual argument must be a variable identifier rather than a literal or expression. Additionally, the \texttt{query} construct can only be used on functions that declare at least one reference parameter.
 
-These rules are exemplified in the following implementation of a simplified \textit{Schelling coordination model}. In this setup, two agents—Alice and Bob—independently choose between two cafés, preferring to coordinate without direct communication. Each agent samples an initial preference, then recursively queries the other's decision to adjust its own. The model uses probabilistic sampling and mutual \texttt{query} calls, while \texttt{observe} enforces alignment between the agents’ choices. The shared variable \texttt{p} bounds recursion depth, ensuring termination.
+These rules are exemplified in the following implementation of a simplified \textit{Schelling coordination model}. In this setup, two agents - Alice and Bob - independently choose between two cafés, preferring to coordinate without direct communication. Each agent samples an initial preference, then recursively queries the other's decision to adjust its own. The model uses probabilistic sampling and mutual \texttt{query} calls, while \texttt{observe} enforces alignment between the agents’ choices. The shared variable \texttt{p} bounds recursion depth, ensuring termination.
 \begin{figure}[ht]
   \centering
   \begin{minipage}{0.85\textwidth}

@@ -115,7 +115,7 @@ Most of the definitions are found in the \verb|src| directory \ref{fig:langium-a
   All mentioned folders except the one containing CLI logic are bundled into the extension itself.
   \item[\code{generated/}] Contains artifacts produced from the grammar definition in the \code{.langium} file. This includes TypeScript AST type definitions,
   which are essential for further analysis and validation, as well as the preliminary parsed grammar rules formatted for the Chevrotain engine to generate parsers.
-  \item[\textbf{Services}] The Services in Langium are a collection of utility classes and helper functions offered to every component of a language project via
+  \item[\textsf{Services}] The Services in Langium are a collection of utility classes and helper functions offered to every component of a language project via
   dependency injection. They cover an extensive range of functionality, from LSP-specific features - such as providers for context-aware code completion, rich hover
   tooltips, signature help, go-to-definition and find-references - to core language utilities that expose parsed documents as both AST and CST models, manage workspace
   state and context information (including indexing, scoping, and name resolution), synchronize the in-memory document model and perform validation checks.
@@ -125,24 +125,30 @@ Most of the definitions are found in the \verb|src| directory \ref{fig:langium-a
   However, as these services grow in both number and complexity, it may be more appropriate to organize them in a dedicated module or folder.
 \end{description}
 
-
-
-The generated module is created automatically from the grammar definition and provides two DI fragments: the GeneratedSharedModule, which registers shared-core services such as AST reflection, and the GeneratedModule, which configures the parser, Chevrotain grammar factory, and language metadata. Conversely, the main module is handwritten: it imports Langium’s default core and shared modules, injects the generated fragments, declares custom services (validators, scope providers, caches), invokes the \texttt{inject} function to assemble the complete service container, and exposes a \texttt{createServices} factory.
+Both module files share analogous responsibilities by encapsulating dependency-injection setup and service registration for the language environment.
+The generated module is produced automatically from the grammar definition and offers two DI fragments, one that registers shared-core services such as AST
+reflection and another that configures the parser, the Chevrotain grammar factory and language metadata. In contrast the main module is handwritten and imports
+Langium's default core and shared fragments, registers any custom services such as validators, scope providers and caches, invokes \code{inject} to assemble the full
+service container and exposes a \code{createServices} factory.
 
 Although the core logic resides in `/src`, files of interest at the project root include the standard npm `package.json` and two Langium-specific configs:
 \code{language-configuration.json}, which governs editor behaviors such as comment delimiters, bracket pairs and auto-closing rules, and
 \code{langium-config.json}, which declares settings like the language ID, grammar entry point, target file extensions and maximum lookahead.
 In particular, the `syntaxes` entry drives the generation of a `.monarch.ts` module (for Monaco-based editors) and a `.tmLanguage.json` file (for TextMate-based engines).
 The TextMate grammar maps regex patterns to semantic scopes that underpin VS Code's coloring, bracket
-matching and code folding, and is the one applied for the extension. Customizing these definition files allows developers to implement nuanced, context-sensitive highlighting—such as semantic theming
-and advanced pattern recognition—that cannot be exhaustively defined by grammar rules alone \cite{EDKarlsson2022Discussion604}.
+matching and code folding, and is the one applied for the extension. Customizing these definition files allows developers to implement nuanced highlighting
+- such as semantic theming and advanced pattern recognition - that cannot be exhaustively defined by grammar rules alone \cite{EDKarlsson2022Discussion604}.
 
-\section{Data Flow and Control Flow}
 
+Notably, the scaffolding tools also inclues further fil;es which are not needed if the sole focus is on developing the extension and language related functionsalty, and icnldued for a web demo ver..
 \section{Language Server Protocol}
 control flow of lsp from file to lsp to editor
 
 custom providers, computators
+
+\section{Data Flow and Control Flow}
+
+
 
 \chapter{Implementation Details}
 \label{sec:langium-grammar}
