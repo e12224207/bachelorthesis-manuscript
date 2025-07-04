@@ -314,7 +314,8 @@ Probabilistic programming has multiple fitting applications within CPSs, especia
 allows controllers to plan even in unpredictable environments and settings.
 
 \begin{multicols}{2}
-  When measurements contain noise or are incorrect, PPL models can still be applied to extract useful information. Instead of treating the raw reading of a sensor as the “truth,”
+  \begin{itemize}
+    \item When measurements contain noise or are incorrect, PPL models can still be applied to extract useful information. Instead of treating the raw reading of a sensor as the “truth,”
   the readings are considered samples for a \textit{sensor’s model}. Not only is it possible to reduce the noise in the measurements by calculating the posterior,
   but those noise characteristics are also used to flesh out the predictive model itself.
   This enables PPLs to adaptively adjust noise models online when, for example, sensors deteriorate over time.
@@ -323,27 +324,27 @@ allows controllers to plan even in unpredictable environments and settings.
   weights each reading according to its uncertainty: more reliable sensors contribute more heavily, while inconsistent or faulty readings are down-weighted or flagged.
   Inference then yields a joint posterior over the true state, allowing the system to reconcile disagreements between sensors, detect potential sensor failures by inferring
   latent bias variables, and maintain a quantified confidence.
-  \\
-  Which leads us into robotics, a quintessential cornerstone of CPS. Instead of working on raw observational data and making assumptions in incomplete cases, robots can adopt
+  \item Which leads us into robotics, a quintessential cornerstone of CPS. Instead of working on raw observational data and making assumptions in incomplete cases, robots can adopt
   a \textit{belief} based on an observational model \cite{cpsProbabilisticRobotics}. The observational model couples motion dynamics (how actions translate into state
   transitions) with existing sensor models, providing a full posterior distribution that the robot can use to imply different levels of confidence for its actions.
   Furthermore, robots often operate in changing environments or with components that degrade over time. Within a PPL, unknown parameters, such as friction
   coefficients or sensor calibration offsets, can be treated as latent variables and perform Bayesian learning to infer them from incoming data. The same inference mechanism used for state
   estimation thus also adapts the model online, continuously refining both motion dynamics and sensor mappings.
-  \\
-  A PPL expresses system dynamics probabilistically so that sampling yields a distribution of possible futures. \cite{cpsPredictiveControl} By enforcing “chance constraints”
+  
+  \item A PPL expresses system dynamics probabilistically so that sampling yields a distribution of possible futures. \cite{cpsPredictiveControl} By enforcing “chance constraints”
   (e.g., “limit the probability of exceeding a safety threshold to 1\%”), inference or Monte Carlo sampling identifies control inputs that optimize expected performance while
   respecting risk. When the current state is uncertain, planning occurs in belief space - each action triggers a Bayesian update of the state distribution, and planners
   choose sequences that minimize expected cost given that uncertainty. Simultaneously, online Bayesian learning refines model parameters (like friction or drag) over time,
   tightening future predictions; as uncertainty shrinks, control can push closer to limits, whereas rising uncertainty leads to more conservative actions.
-  \\
-  Recent research is looking at ways to utilize PPLs to gather diagnostics of a CPS. \cite{cpsPPLDiagnostics} They authors propose a way to infer potential error causes, that
+  
+  \item Recent research is looking at ways to utilize PPLs to gather diagnostics of a CPS. \cite{cpsPPLDiagnostics} They authors propose a way to infer potential error causes, that
   might be overlooked otherwise, due to the .
   This of of great interest to system operators for deciding if either parts have to be replaced or only have to be recelebrated. Because measured data on system deviations
   often reflects complex intertwining causes and \textit{closed-loop corrections}, identifying root causes becomes a matter of inference. The proposed two-step approach
   first builds a generative model (based on control software and expert insights) that simulates observations from hypothesized error causes. This simulator is then recast
   as a probabilistic program, allowing Bayesian inference to estimate latent causes (with confidence intervals) from actual measurements.
 
+  \end{itemize}
 \end{multicols}
 
 \label{sec:pp}
@@ -466,7 +467,7 @@ model checking. The distinction between sampling-based execution and symbolic ve
 \label{sec:miniprob}
 \chapter{The \textit{MiniProb} DSL}
 \section{Domain and Purpose}
-\textit{MIniProb} is the successor of a DSL first introduced as \textit{MiniProc}\cite{miniproc}. Originally lacking the typical probabilistic
+\textit{MiniProb} is the successor of a DSL first introduced as \textit{MiniProc}\cite{miniproc}. Originally lacking the typical probabilistic
 primitives such as \code{observe} and \code{query}, the language was designed for formal verification of recursive programs (see: \ref{sec:formal-methods}). As MiniProc focuses on recursive control-flow and
 call-return semantics - qualities representative of procedural programming - it classifies under the imperative paradigm (see \ref{sec:prog-paradigms}). Furthermore, it is a
 context-free language, since its structure is tightly coupled with the theory of \textbf{Operator Precedence Languages (OPLs)}, a deterministic subclass of CFLs (see: \ref{sec:formallangs}).
@@ -516,7 +517,7 @@ Ultimately, the purpose behind both MiniProc and MiniProb is to offer a high-lev
        & \to  & type\;\mathit{id}\;(\texttt{,}\;\mathit{id})^*                                    \\[6pt]
 
       func
-       & \to  & \mathit{id}\;\texttt{(}
+       & \to  & \mathit{id} \texttt{(}
       (\,type\;\texttt{\&}?\;\mathit{id}
       (\texttt{,}\;type\;\texttt{\&}?\;\mathit{id})^*\,)?
       \texttt{)}                                                                                  \\[-2pt]

@@ -29,7 +29,7 @@ well-established tooling for other programming languages. The following requirem
 
 \section{Alternative Technologies}
 
-This extension is implemented using \textbf{Langium}, which itself builds upon the standardized \textbf{Language Server Protocol (LSP)}~\cite{LSP}, yet
+This extension is implemented using \textbf{Langium}, which itself builds upon the standardized \textbf{Language Server Protocol (LSP)} \cite{LSP}, yet
 there are several other technologies and approaches available for creating Visual Studio Code language extensions. At its core, the LSP allows tooling for programming
 languages to be developed in a modular, editor-independent manner, making it possible to implement a language server in any language that can communicate via JSON-RPC.
 
@@ -73,8 +73,11 @@ Its open-source nature encourages collaboration and continuous improvement throu
           benefits compared to alternative engines \cite{Chevrotain}, complementing its generation of precise ASTs and CSTs and its robust error recovery capabilities. The error recovery is
           implemented with single-token insertion and deletion strategies to correct unexpected or missing tokens, alongside rule-level resynchronization that discards input until a defined
           recovery point is reached, to maintain parser continuity in the face of syntax errors.
-    \item EBNF like grammar definition - own DSL .langium -.  includes reference def -> linking and resolvement
-    \item In addition to its core language analysis capabilities, Langium offers further extensibility: its generator API traverses ASTs and CSTs to produce arbitrary outputs
+    \item Langium provides a custom DSL using the \code{.langium} extension to define the grammar on which everything else is built upon. This DSL closely resembles an EBNF grammar,
+          augmenting basic BNF with regex-like operators, language constructs for assignments and typing, and built-in cross-referencing. Cross-referencing enables production rules to declare relations to one another, which are resolved during a document's linking phase.          
+          Once defined, the core grammar is converted into a Chevrotain compatible JSON view, which when consumed by the parser, produces a fully typed AST. While linking, the AST is traversed and any
+          cross-references resolved by checking the reference against the computed scope of each possible reference holder.
+    \item In addition to its core language capabilities, Langium offers further extensibility: its generator API traverses ASTs and CSTs to produce arbitrary outputs
           - whether transpiled or compiled code, structured data formats such as JSON, XML, or Markdown, or custom domain-specific representations - and thus supports downstream
           processing, tooling, or integration into build and deployment pipelines.
           Langium projects can also be scaffolded into a command-line interface, registering commands for parsing, validation, generation, and LSP serving; each command invokes the
@@ -90,7 +93,7 @@ Its open-source nature encourages collaboration and continuous improvement throu
 \end{multicols}
 
 \section{High-Level Architecture Diagram}
-
+update diagram such that cusomt services also extends the lsp providers
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{graphics/langiumArchitecture.png}
@@ -100,11 +103,9 @@ Its open-source nature encourages collaboration and continuous improvement throu
 
 
 \section{Module Decomposition}
-describe diretories
-what do waht do? generators, cli, validation, custom services...
 
 Langium projects can easily be created with the support of the scaffolding tool \verb|Yeoman|, producing a structured mock project including a sample language definition.
-Most of the definitions are found in the \verb|src| directory \ref{fig:langium-architecture}, encompassing fnctionality for the Language Server, the extension and actual language tooling.
+Most of the definitions are found in the \verb|src| directory \ref{fig:langium-architecture}, encompassing functionality for the Language Server, the extension and actual language tooling.
 
 \begin{description}
   \item[\code{language/}] Assembles the core of any Langium project. It includes the \code{.langium} file, in which the custom language grammar is defined, as well as 
@@ -125,22 +126,23 @@ Most of the definitions are found in the \verb|src| directory \ref{fig:langium-a
   However, as these services grow in both number and complexity, it may be more appropriate to organize them in a dedicated module or folder.
 \end{description}
 
-Both module files share analogous responsibilities by encapsulating dependency-injection setup and service registration for the language environment.
+Both \code{module} files share analogous responsibilities by encapsulating dependency-injection setup and service registration for the language environment.
 The generated module is produced automatically from the grammar definition and offers two DI fragments, one that registers shared-core services such as AST
 reflection and another that configures the parser, the Chevrotain grammar factory and language metadata. In contrast the main module is handwritten and imports
 Langium's default core and shared fragments, registers any custom services such as validators, scope providers and caches, invokes \code{inject} to assemble the full
 service container and exposes a \code{createServices} factory.
 
-Although the core logic resides in `/src`, files of interest at the project root include the standard npm `package.json` and two Langium-specific configs:
+Although the core logic resides in \code{/src}, other files of interest reside at the project root including configurations for npm/node and Langium itself:
 \code{language-configuration.json}, which governs editor behaviors such as comment delimiters, bracket pairs and auto-closing rules, and
 \code{langium-config.json}, which declares settings like the language ID, grammar entry point, target file extensions and maximum lookahead.
-In particular, the `syntaxes` entry drives the generation of a `.monarch.ts` module (for Monaco-based editors) and a `.tmLanguage.json` file (for TextMate-based engines).
+In particular, the \code{syntaxes} config property enables the generation of either a `.monarch.ts` (for Monaco-based editors) and a `.tmLanguage.json` file (for TextMate-based engines).
 The TextMate grammar maps regex patterns to semantic scopes that underpin VS Code's coloring, bracket
-matching and code folding, and is the one applied for the extension. Customizing these definition files allows developers to implement nuanced highlighting
+matching and code folding, and is the one consumed by the extension. Customizing the syntax files allows developers to implement nuanced highlighting
 - such as semantic theming and advanced pattern recognition - that cannot be exhaustively defined by grammar rules alone \cite{EDKarlsson2022Discussion604}.
 
+Notably, projects initialized with the scaffolding tool include extra files not discussed; these include, amongst others, the Monarch grammar files, Vite-related configs,
+and setup scripts - scaffolded for a web demo but can be removed when solely focusing on developing the language tooling extension.
 
-Notably, the scaffolding tools also inclues further fil;es which are not needed if the sole focus is on developing the extension and language related functionsalty, and icnldued for a web demo ver..
 \section{Language Server Protocol}
 control flow of lsp from file to lsp to editor
 
@@ -149,12 +151,125 @@ custom providers, computators
 \section{Data Flow and Control Flow}
 
 
-
 \chapter{Implementation Details}
 \label{sec:langium-grammar}
-\section{Langium Grammar Definition for \textit{Miniprob}}
+\section{Langium Grammar Definition for \textit{MiniProb}}
+
+A Langium grammar definition primarily consists of rules: \code{<Rulename>: <production_result>} and terminals: \code{terminal <name>: <result>} defining the language
+in accordance of conventional grammatical specifications. In addition, it must also include keywords specifying the grammar name also used in the AST: \code{grammar <name>},
+and to determine the start from which a document should be parsed: \code{entry <RootRulename>: <production_result>}.
+In this case, the production result describes the whole parsable document and therefore acts as the root node of the AST.
+\\
+Also mention the LL (2) parsability and which tokens demand a 2 lookahead ()
+The code excerpts in the following sections are all taken from the original MiniProb Langium grammar (\ref{list:langium-grammar}) and, for easier digestion,
+have been truncated; each snippet focuses respectively on the core rules, the expression system, and the terminal and type definitions.
+\subsection*{Core rules}
+
+The code excerpt shown here defines 'MiniProb' as the grammar name and sets the \code{Program} rule as the entry point, adhering to nominal abstraction by
+referring to each MiniProb-parsed document as a program. Lines of interest include line 8 - showing that every MiniProb program consists of some global declarations
+followed by at least on function - and line 4, which allows for file import of other MiniProb programs at the beginning of the document.
+
+The \code{FileImport} rule emulates the C preprocessor's "\#include" directive by requiring a literal match of the \texttt{\#include} keyword followed by a
+file name token (terminal \code{STRING}). Generally during parsing, each line is evaluated either against these fixed string keywords or against any matching terminals (order of match).
+As the file names have to be retrievable once it is time to compute the scope \ref{sec:customservices}, they are made accessible through the AST
+, with each FileImport-node containing a \texttt{file} property that stores the corresponding value.
+
+This declaring of \textit{assignments} (here also referred to as fields) is a central feature of the Langium DSL, which binds other grammar rules or literal strings for subsequent retrieval and use in AST-based computations.
+Because all production rules extend upon the \code{AstNode} base class, the assigned fields share a common origin allowing polymorphic access and seamless traversal and processing of every rule-node;
+the exception being string literals, which are treated as language specific keywords (eg. "while", "throw"). Fields can either be single valued (line 24) or multi-valued (line 12)
+in which case an array of the referred rule is created instead of a single instance.
+Furthermore, fields may be assigned optional rules, which are backed in the AST by nullable values (lines 5, 6, 16), or if multi-valued,
+by types that default to \underline{undefined} (lines 4, 8). It is also possible to directly mark assignments as optional (line 20), if so,
+the AST denotes the property as a boolean flag indicating whether the field was present.
+
+Bracketed annotations (\code{[<Rule>:<Value>]}, line 16) impose stronger cross-referential constraints by requiring
+that the target symbols be defined elsewhere in the document/scope and hold a field with the same value; such cross-references are resolved during the scoping phase (see Figure \ref{fig:controlflow}).
+When a field references multiple distinct rules, the \code{type} keyword has to be used (line 2) unifying the rules into a single symbol, which generates an union type within the AST \cite{typescript-unions-intersections}.
+In particular, all union members must share the same underlying value type: consider line 16, 12 and 20, Lval refers to either Param or Decl expecting the resolution to occur
+over an ID.
+
+\begin{minted}[linenos, breaklines]{yaml}
+grammar MiniProb
+type DeclOrParam = Decl | Param;
+entry Program:
+    (fileImports+=FileImport)*
+    probabilisticQuery=PROB_QUERY? // not tested: out of scope
+    formula=FORMULA? // not tested: out of scope
+    'program:'?
+    (declarations+=Decl ';')* functions+=Func+;
+FileImport:
+    '#include' file=STRING;
+Decl:
+    type=Type names+=ID (',' names+=ID)*;
+.
+.
+Lval:
+    ref=[DeclOrParam:ID] ('['index=Expression']')?;
+.
+.
+Param:
+    type=Type byRef?='&'? name=ID;
+ArgList:
+    arguments+=Arg (',' arguments+=Arg)*;
+Arg:
+    expression=Expression; //only expression and no by-ref symbol (could be replaced)
+.
+.
+\end{minted}
+
+\subsection*{Expressions}
+
+Most of the expression system is omitted here, as it closely follows the operator-precedence grammar pattern common to LL parsers.
+Typically, expressions are divided into a hierarchy productions - such as Expression (handling addition and subtraction),
+Term (for multiplication and division), Factor (for unary operators), and Primary (literals, identifiers, and parenthesized expressions)—and uses
+“rest” productions (e.g. ExpressionRest → (“+” | “–”) Term ExpressionRest | ε) to eliminate left recursion while preserving left-associativity.
+This arrangement guarantees that the parser can always choose the correct production with a single lookahead token, ensuring LL(1) compliance.
+For a fully worked-out example, including support for exponentiation and custom binding powers, see the expression grammars in Langium’s samples repository on GitHub \cite{LangiumGit}
+
+The lines depiceted here are chosen as they include a construct special? to MiniProb, the probabilistic assignment and the last level of the hierarchy.
+
+\begin{minted}[linenos, breaklines]{yaml}
+  ProbChoice:
+    '{'numerator=Expression ':' denominator=Expression '}';
+Expression:
+    LogicalOr ({infer ProbabilisticAssignment.head=current} (probabilities+=(ProbChoice) fallbacks+=LogicalOr)+)?;
+LogicalOr infers Expression:
+.
+.
+.
+Primary infers Expression:
+    {infer BoolLiteral} literal=BOOL | 
+    {infer IntLiteral} literal=IntegerLiteral |
+    Lval |
+    '(' Expression ')';
+\end{minted}
+
+not whole expression, only the probchoice, everything else pretty much as can be seen in \cite{linkToLangiumExamplpesGit}
+
+\subsection*{Types and terminals}
+\begin{minted}[linenos, breaklines]{yaml}
+Type:
+    'bool' | IntType;
+IntType:
+    prefix=INT_PREFIX ({infer IntArray} '[' size=INT ']')?;
+IntegerLiteral: // same name as infer IntLiteral creates minor conflicts
+    sign=('+' | '-')? value=INT suffix=INT_PREFIX;
+
+terminal INT_PREFIX: /[su][1-9][0-9]{0,8}/; // 2^29-1 backend
+terminal BOOL returns boolean: /(true|false)/;
+terminal PROB_QUERY: /probabilistic query:.*;/;
+terminal FORMULA: /formula\s?=\s?.*;/;
+terminal ID: /(?!(true|false)|[su][1-9][0-9]*)[a-zA-Z_][a-zA-Z0-9_\.\:\~]*/;
+terminal STRING returns string: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;
+terminal INT returns number: /[0-9]+/;
+hidden terminal WS: /\s+/;
+hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
+hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
+\end{minted}
+
 \section{Type System and Semantic Checks}
 \section*{Custom services}
+\label{sec:customservices}
 scoping computation and providers - import
 \section{VS Code Extension Points}
 textmate highlighting lang-config.json

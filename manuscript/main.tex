@@ -1,6 +1,6 @@
 \documentclass[11pt]{report}
 \usepackage[paper=a4paper,margin=2.5cm]{geometry}
-\usepackage[outputdir=out]{minted}
+\usepackage[outputdir=out, newfloat]{minted}
 \usepackage{multicol}
 \usepackage{fontspec}
 
@@ -19,6 +19,7 @@
 \usepackage{graphicx}
 \usepackage{wrapfig}
 \usepackage[colorlinks,linkcolor=blue,urlcolor=cyan]{hyperref}
+\usepackage{caption}
 \usepackage{titlesec}
 \titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{}{0pt}{}
 \titlespacing*{\chapter}{0pt}{1.5em}{1em}
@@ -37,7 +38,7 @@
 \addbibresource{bibliography/theory.bib}
 \addbibresource{bibliography/implementation.bib}
 \usepackage{./simplebnf}
-\def\code#1{\texttt{#1}}
+\def\code#1{\texttt{\detokenize{#1}}}
 
 \begin{document}
 
@@ -79,6 +80,7 @@
 
 \begin{abstract}
   % Your abstract text here.
+  all slash code coantined text hs to be revisted due to the detokenize
 \end{abstract}
 
 \tableofcontents
@@ -138,6 +140,21 @@
   | \code{,} $arg\; arg\_list\_tail$
   | $\epsilon$
   ;;
+  $param$ : \textsf{Parameter} ::=
+  | $type\;amp\_opt\;identifier$
+  ;;
+  $amp\_opt$ : \textsf{Value-result} ::=
+  | \code{&}
+  | $\epsilon$
+  ;;
+  $param\_list$ ::=
+  | $param\;param\_list\_tail$
+  | $\epsilon$
+  ;;
+  $param\_list\_tail$ ::=
+  | \code{,} $param\;param\_list\_tail$
+  | $\epsilon$
+  ;;
   $block$ : \textsf{Codeblock} ::=
   | $stmt\; stmt\_list$
   ;;
@@ -162,7 +179,7 @@
   $assignment$ ::=
   | $lval\; \code{=}\; assign\_rhs$
   ;;
-  $assign\_rhs$ ::=
+  $assign\_rhs$  : \textsf{Right-hand side} ::=
   | $expr$
   | $distribution$
   ;;
@@ -180,42 +197,27 @@
   ;;
   $try\_catch$ : \textsf{Try-catch}::=
   | \code{try} $\left\{\; block\_opt\; \right\} \code{catch} \left\{\; block\_opt\; \right\}$
-  ;;
-  $lval$ ::=
-  | $identifier\;\left[\;expr\;\right]$
-  | $identifier$
-  ;;
-  $distribution$ ::=
-  | \code{Bernoulli} $\left(\;expr\;\code{,}\;expr\;\right)$
-  | \code{Uniform}   $\left(\;expr\;\code{,}\;expr\;\right)$
-  ;;
-  $param$ ::=
-  | $type\;amp\_opt\;identifier$
-  ;;
-  $amp\_opt$ ::=
-  | \code{\&}
-  | $\epsilon$
-  ;;
-  $param\_list$ ::=
-  | $param\;param\_list\_tail$
-  | $\epsilon$
-  ;;
-  $param\_list\_tail$ ::=
-  | \code{,} $param\;param\_list\_tail$
-  | $\epsilon$
 \end{bnf}
 
 \pagebreak
 
 \begin{bnf}
-  $expr$ ::=
+  $lval$ : \textsf{Left-hand value} ::=
+  | $identifier\;\left[\;expr\;\right]$
+  | $identifier$
+  ;;
+  $distribution$ : \textsf{Sampling} ::=
+  | \code{Bernoulli} $\left(\;expr\;\code{,}\;expr\;\right)$
+  | \code{Uniform}   $\left(\;expr\;\code{,}\;expr\;\right)$
+  ;;
+  $expr$ : \textsf{Expression}::=
   | $logical\_or\;prob\_assign\_opt$
   ;;
   $prob\_assign\_opt$ ::=
   | $prob\_assign$
   | $\epsilon$
   ;;
-  $prob\_assign$ ::=
+  $prob\_assign$ : \textsf{Probabilistic Assignment} ::=
   | $prob\_choice\;expr$
   ;;
   $prob\_choice$ ::=
@@ -232,7 +234,7 @@
   | $comparison\;logical\_and\_tail$
   ;;
   $logical\_and\_tail$ ::=
-  | \code{\&\&} $comparison\;logical\_and\_tail$
+  | \code{&&} $comparison\;logical\_and\_tail$
   | $\epsilon$
   ;;
   $comparison$ ::=
@@ -270,7 +272,7 @@
   ;;
   $division\_tail$ ::=
   | \code{/} $unary\;division\_tail$
-  | \code{\%} $unary\;division\_tail$
+  | \texttt{\%} $unary\;division\_tail$
   | $\epsilon$
   ;;
   $unary$ ::=
@@ -286,7 +288,11 @@
   | $int\_literal$
   | $lval$
   | $\left(\;expr\;\right)$
-  ;;
+\end{bnf}
+
+\pagebreak
+
+\begin{bnf}
   $identifier$ ::=
   | $letter\;ident\_tail$
   ;;
@@ -294,7 +300,7 @@
   | $letter\_or\_digit\;ident\_tail$
   | \code{.} $ident\_tail$
   | $\colon\; ident\_tail$
-  | \code{\~} $ident\_tail$
+  | \code{~} $ident\_tail$
   | $\epsilon$
   ;;
   $letter$ ::=
@@ -302,7 +308,7 @@
   | \code{b}
   | …
   | \code{Z}
-  | \code{\_}
+  | \code{_}
   ;;
   $digit$ ::=
   | \code{0}
@@ -333,11 +339,15 @@
   | \code{true}
   | \code{false}
 \end{bnf}
-
+\captionof{listing}{Backus-Naur form of MiniProb grammar}
+\label{list:miniprob-bnf}
 
 % Full Miniprob grammar here.
 
 \chapter{Expanded Code Listings}
 % Additional code excerpts.
+\inputminted[linenos, breaklines]{yaml}{samples/mini-prob.langium}
+\captionof{listing}{Langium grammar definition of MiniProb}
+\label{list:langium-grammar}
 
 \end{document}
