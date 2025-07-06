@@ -63,13 +63,13 @@ groups of grammars (and corresponding language classes), that are identified by 
   left-reg.: \quad A \;\to\; Ba \quad or \quad A \;\to\; a,
 \]
 where \(A,B\) are nonterminals and \(a\) is a terminal. Regular expressions provide an alternative, declarative notation for these languages - each expression
-can be mechanically transformed into a regular grammar, and vice versa. More broadly, every grammar in the Chomsky hierarchy admits an equivalent acceptor automaton;
-in the case of Type-3 grammars, this correspondence yields deterministic or nondeterministic finite automata. Leveraging these conversions makes regular grammars
+can be transformed into a regular grammar, and vice versa. Further, every grammar in the Chomsky hierarchy can be characterized by an equivalent acceptor automaton, which admits all input that ends in valid states as words of the language.
+In the case of Type-3 grammars, this correspondence yields deterministic or nondeterministic finite automata. Leveraging these conversions makes regular grammars
 invaluable in practice (for example, in lexical analysis, pattern matching, and protocol verification), even though their expressive power is the most limited.
 \textbf{Type-2} grammars, or \emph{context-free} grammars (CFGs), produce all context-free languages.
 Their rules take the general form  \[A \;\to\; \alpha\] where \(A\) is a single nonterminal and \(\alpha\) is any string of terminals and nonterminals.
-This additional flexibility captures nested, hierarchical structures-like balanced parentheses or most programming‐language syntaxes - that regular grammars cannot.
-Each CFG is accepted by a corresponding pushdown automaton: the grammar expansions map naturally onto push and pop operations on the PDA’s stack, making the grammar-automaton
+This additional flexibility captures nested, hierarchical structures-like balanced parentheses or most programming-language syntaxes - that regular grammars cannot.
+Each CFG is accepted by a corresponding pushdown automaton: the grammar expansions map naturally onto push and pop operations on the PDA's stack, making the grammar-automaton
 equivalence at this level another cornerstone of formal language theory.
 
 The thesis focuses on the above mentioned classes, as these are the ones applicable in the implementation part of the language service?NAME?. The last two classifications

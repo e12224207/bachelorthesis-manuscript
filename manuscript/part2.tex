@@ -74,7 +74,7 @@ Its open-source nature encourages collaboration and continuous improvement throu
           implemented with single-token insertion and deletion strategies to correct unexpected or missing tokens, alongside rule-level resynchronization that discards input until a defined
           recovery point is reached, to maintain parser continuity in the face of syntax errors.
     \item Langium provides a custom DSL using the \code{.langium} extension to define the grammar on which everything else is built upon. This DSL closely resembles an EBNF grammar,
-          augmenting basic BNF with regex-like operators, language constructs for assignments and typing, and built-in cross-referencing. Cross-referencing enables production rules to declare relations to one another, which are resolved during a document's linking phase.          
+          augmenting basic BNF with regex-like operators, language constructs for assignments and typing, and built-in cross-referencing. Cross-referencing enables production rules to declare relations to one another, which are resolved during a document's linking phase.
           Once defined, the core grammar is converted into a Chevrotain compatible JSON view, which when consumed by the parser, produces a fully typed AST. While linking, the AST is traversed and any
           cross-references resolved by checking the reference against the computed scope of each possible reference holder.
     \item In addition to its core language capabilities, Langium offers further extensibility: its generator API traverses ASTs and CSTs to produce arbitrary outputs
@@ -108,22 +108,22 @@ Langium projects can easily be created with the support of the scaffolding tool 
 Most of the definitions are found in the \verb|src| directory \ref{fig:langium-architecture}, encompassing functionality for the Language Server, the extension and actual language tooling.
 
 \begin{description}
-  \item[\code{language/}] Assembles the core of any Langium project. It includes the \code{.langium} file, in which the custom language grammar is defined, as well as 
-  the code that starts the Language Server with all necessary services bundled.
+  \item[\code{language/}] Assembles the core of any Langium project. It includes the \code{.langium} file, in which the custom language grammar is defined, as well as
+    the code that starts the Language Server with all necessary services bundled.
   \item[\code{cli/}] Provides functionality for CLI interactions, command parsing, and generators. The generators in this folder invoke processes that generate artifacts
-  from the language and input files; they are typically used only offline and are called once rather than continuously via the CLI and support efficient pipelining.
+    from the language and input files; they are typically used only offline and are called once rather than continuously via the CLI and support efficient pipelining.
   \item[\code{extension/}] Contains the VS Code extension bootstrap code needed to connect to the Language Server and utilize LSP support features.
-  All mentioned folders except the one containing CLI logic are bundled into the extension itself.
+    All mentioned folders except the one containing CLI logic are bundled into the extension itself.
   \item[\code{generated/}] Contains artifacts produced from the grammar definition in the \code{.langium} file. This includes TypeScript AST type definitions,
-  which are essential for further analysis and validation, as well as the preliminary parsed grammar rules formatted for the Chevrotain engine to generate parsers.
+    which are essential for further analysis and validation, as well as the preliminary parsed grammar rules formatted for the Chevrotain engine to generate parsers.
   \item[\textsf{Services}] The Services in Langium are a collection of utility classes and helper functions offered to every component of a language project via
-  dependency injection. They cover an extensive range of functionality, from LSP-specific features - such as providers for context-aware code completion, rich hover
-  tooltips, signature help, go-to-definition and find-references - to core language utilities that expose parsed documents as both AST and CST models, manage workspace
-  state and context information (including indexing, scoping, and name resolution), synchronize the in-memory document model and perform validation checks.
-  Because the parts are wired up as an injectable service, precise consumptions of the capabilities needed is possible. Moreover, Langium enables developers to swap in
-  custom implementations of services by extending the corresponding default classes, and these services have to be wired into the DI container manually \ref{sec}.
-  By default, the validation logic is located in the \code{language/} directory; subsequently, I placed additional custom services there.
-  However, as these services grow in both number and complexity, it may be more appropriate to organize them in a dedicated module or folder.
+    dependency injection. They cover an extensive range of functionality, from LSP-specific features - such as providers for context-aware code completion, rich hover
+    tooltips, signature help, go-to-definition and find-references - to core language utilities that expose parsed documents as both AST and CST models, manage workspace
+    state and context information (including indexing, scoping, and name resolution), synchronize the in-memory document model and perform validation checks.
+    Because the parts are wired up as an injectable service, precise consumptions of the capabilities needed is possible. Moreover, Langium enables developers to swap in
+    custom implementations of services by extending the corresponding default classes, and these services have to be wired into the DI container manually \ref{sec}.
+    By default, the validation logic is located in the \code{language/} directory; subsequently, I placed additional custom services there.
+    However, as these services grow in both number and complexity, it may be more appropriate to organize them in a dedicated module or folder.
 \end{description}
 
 Both \code{module} files share analogous responsibilities by encapsulating dependency-injection setup and service registration for the language environment.
@@ -219,17 +219,54 @@ Arg:
 
 \subsection*{Expressions}
 
-Most of the expression system is omitted here, as it closely follows the operator-precedence grammar pattern common to LL parsers.
-Typically, expressions are divided into a hierarchy productions - such as Expression (handling addition and subtraction),
-Term (for multiplication and division), Factor (for unary operators), and Primary (literals, identifiers, and parenthesized expressions)—and uses
-“rest” productions (e.g. ExpressionRest → (“+” | “–”) Term ExpressionRest | ε) to eliminate left recursion while preserving left-associativity.
+Most of the expression system is omitted here, as it closely follows the \textit{operator-precedence grammar} pattern common to LL parsers \cite{operatorPrecedence}.
+Typically, a grammar defines a series of nonterminals - each corresponding to a distinct operator-precedence level (from primaries up to full expressions) - and structures its productions so as to eliminate left recursion while preserving left-associative evaluation at every level.
 This arrangement guarantees that the parser can always choose the correct production with a single lookahead token, ensuring LL(1) compliance.
-For a fully worked-out example, including support for exponentiation and custom binding powers, see the expression grammars in Langium’s samples repository on GitHub \cite{LangiumGit}
 
-The lines depiceted here are chosen as they include a construct special? to MiniProb, the probabilistic assignment and the last level of the hierarchy.
+\begin{wrapfigure}{r}{0.40\textwidth}
+  \centering
+  \begin{forest}
+    for tree={
+      grow=south,
+      edge={-stealth},
+      l sep=0.2em,
+      align=right,
+    }
+    [Expression
+      [ProbabilisticAssignment?
+        [LogicalOr\,(\texttt{||})
+          [LogicalAnd\,(\texttt{\&\&})
+            [Comparison\,(\texttt{< <= > >= == !=})
+              [Term\,(\texttt{+ -})
+                [Factor\,(\texttt{*})
+                  [Division\,(\texttt{/ \%})
+                    [Unary\,(\texttt{!})
+                      [Primary]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  \end{forest}
+  \caption{Operator‐precedence hierarchy}
+  \label{fig:op-prec-tree}
+\end{wrapfigure}
+
+In Langium, rules can be made to share other base classes than \code{AstNode} by utilizing the \code{infers} keyword. This is especially useful for creating a layered expression system, as all the levels infer from the top-most expression (line 3), which follows logical abstraction and enables dynamic and easy resolution of parsed expressions.
+The lines depicted here have been selected because they include the \code{Probabilistic Assignment}, a construct particular to MiniProb (see \ref{sec:miniprob}), alongside the \code{Primary} rule, which defines the core forms to which all expressions ultimately resolve.
+The topmost level of the precedence hierarchy was originally occupied by the disjunction operator (\code{||}), but was ultimately edged out by the probabilistic assignment. This behavior is enabled by another Langium specific command \code{infers}, which instructs a rule to create a new AST node based on the structure of the input.
+In this case, an \code{Expression} is by default parsed as a \code{LogicalOr}, but immediately becomes a \code{Probabilistic Assignment} node as soon as the first curly brace is recognized (lines 2, 4). The remainder of the operator precedence follows conventional conventions, with the exception that \code{*} binds more loosely than division and modulo (see Figure~\ref{fig:op-prec-tree}).
+
+
+At the base of the precedence hierarchy is the \code{Primary} rule, to which every expression ultimately reduces. A \code{Primary} can be either a boolean literal, an integer literal, or a variable reference (\code{Lval}); treating \code{Lval} as a \code{Primary} makes variable accesses first-class expressions,
+as is conventional in many languages. In addition, the production allows any expression to be wrapped in arbitrarily many parentheses which only delegate to the inner expression without altering the meaning.
 
 \begin{minted}[linenos, breaklines]{yaml}
-  ProbChoice:
+ProbChoice:
     '{'numerator=Expression ':' denominator=Expression '}';
 Expression:
     LogicalOr ({infer ProbabilisticAssignment.head=current} (probabilities+=(ProbChoice) fallbacks+=LogicalOr)+)?;
@@ -247,6 +284,9 @@ Primary infers Expression:
 not whole expression, only the probchoice, everything else pretty much as can be seen in \cite{linkToLangiumExamplpesGit}
 
 \subsection*{Types and terminals}
+
+
+
 \begin{minted}[linenos, breaklines]{yaml}
 Type:
     'bool' | IntType;

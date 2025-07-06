@@ -48,12 +48,11 @@ Query:
 ParamList:
     parameters+=Param (',' parameters+=Param)*;
 Param:
-    type=Type byRef?='&'? name=ID; //distributive?
+    type=Type byRef?='&'? name=ID;
 ArgList:
     arguments+=Arg (',' arguments+=Arg)*;
 Arg:
     expression=Expression; //only expre and no ref symbol
-
 Distribution:
     (name='Bernoulli' '(' p=Expression ',' q=Expression ')') |
     (name='Uniform' '(' lower=Expression ',' upper=Expression ')');
