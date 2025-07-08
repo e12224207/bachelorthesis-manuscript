@@ -559,14 +559,14 @@ given \emph{type}, which may be \code{bool}, signed (\code{s}) or unsigned (\cod
 and optionally fixed-size arrays (e.g., \code{u8[10u4]}). Functions (\emph{func}) consist of an identifier, an optional list of typed parameters (passed by value or
 reference via \code{\&}), and a block containing optional local declarations and at least one statement.
 
-Within function bodies, MiniProb allows for local declarations and familiar C-like statements, including variable assignments (\code{lval = \emph{e};}),
+Within function bodies, MiniProb allows for local declarations and familiar C-like statements, including variable assignments (\texttt{lval = \emph{e};}),
 function calls, and control flow structures such as \code{if}/\code{else}, \code{while} loops, and structured exception handling via \code{try}/\code{catch},
 with \code{throw;} used to abort execution. Left-hand values (\emph{lval}) may refer to scalar variables or indexed array elements, while types follow a compact
 convention, consisting of Booleans and signed or unsigned integers of fixed width.
 
 Probabilistic constructs are central to MiniProb's design. These include sampling from distributions via statements like \code{lval = Distribution(...);},
-currently supporting both \code{Bernoulli} and \code{Uniform} distributions. The \code{observe \emph{e};} construct allows conditioning execution on logical expressions,
-rejecting traces that do not satisfy the observed condition. Inference is triggered through the \code{query \emph{fcall};} statement, which indicates
+currently supporting both \code{Bernoulli} and \code{Uniform} distributions. The \texttt{observe \emph{e};} construct allows conditioning execution on logical expressions,
+rejecting traces that do not satisfy the observed condition. Inference is triggered through the \texttt{query \emph{fcall};} statement, which indicates
 the probability evaluation of a function's outcome given a set of observations.
 
 In addition to structured control, MiniProb supports expressions built from literals, variables, and function calls, composed using arithmetic

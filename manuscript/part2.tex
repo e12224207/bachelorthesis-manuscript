@@ -227,29 +227,29 @@ This arrangement guarantees that the parser can always choose the correct produc
   \centering
   \begin{forest}
     for tree={
-      grow=south,
-      edge={-stealth},
-      l sep=0.2em,
-      align=right,
+    grow=south,
+    edge={-stealth},
+    l sep=0.2em,
+    align=right,
     }
     [Expression
-      [ProbabilisticAssignment?
-        [LogicalOr\,(\texttt{||})
-          [LogicalAnd\,(\texttt{\&\&})
-            [Comparison\,(\texttt{< <= > >= == !=})
-              [Term\,(\texttt{+ -})
+    [ProbabilisticAssignment?
+    [LogicalOr\,(\texttt{||})
+    [LogicalAnd\,(\texttt{\&\&})
+        [Comparison\,(\texttt{< <= > >= == !=})
+            [Term\,(\texttt{+ -})
                 [Factor\,(\texttt{*})
-                  [Division\,(\texttt{/ \%})
-                    [Unary\,(\texttt{!})
-                      [Primary]
-                    ]
+                    [Division\,(\texttt{/ \%})
+                        [Unary\,(\texttt{!})
+                            [Primary]
+                          ]
+                      ]
                   ]
-                ]
               ]
-            ]
           ]
-        ]
       ]
+    ]
+    ]
     ]
   \end{forest}
   \caption{Operator‐precedence hierarchy}
@@ -259,11 +259,10 @@ This arrangement guarantees that the parser can always choose the correct produc
 In Langium, rules can be made to share other base classes than \code{AstNode} by utilizing the \code{infers} keyword. This is especially useful for creating a layered expression system, as all the levels infer from the top-most expression (line 3), which follows logical abstraction and enables dynamic and easy resolution of parsed expressions.
 The lines depicted here have been selected because they include the \code{Probabilistic Assignment}, a construct particular to MiniProb (see \ref{sec:miniprob}), alongside the \code{Primary} rule, which defines the core forms to which all expressions ultimately resolve.
 The topmost level of the precedence hierarchy was originally occupied by the disjunction operator (\code{||}), but was ultimately edged out by the probabilistic assignment. This behavior is enabled by another Langium specific command \code{infers}, which instructs a rule to create a new AST node based on the structure of the input.
-In this case, an \code{Expression} is by default parsed as a \code{LogicalOr}, but immediately becomes a \code{Probabilistic Assignment} node as soon as the first curly brace is recognized (lines 2, 4). The remainder of the operator precedence follows conventional conventions, with the exception that \code{*} binds more loosely than division and modulo (see Figure~\ref{fig:op-prec-tree}).
+In this case, an \code{Expression} is by default parsed as a \code{LogicalOr}, but immediately becomes a \code{Probabilistic Assignment} node as soon as the first curly brace is recognized (lines 2, 4). The remainder of the operator precedence follows conventional conventions, with the exception that '\code{*}' binds more loosely than division and modulo (see Figure~\ref{fig:op-prec-tree}).
 
-
-At the base of the precedence hierarchy is the \code{Primary} rule, to which every expression ultimately reduces. A \code{Primary} can be either a boolean literal, an integer literal, or a variable reference (\code{Lval}); treating \code{Lval} as a \code{Primary} makes variable accesses first-class expressions,
-as is conventional in many languages. In addition, the production allows any expression to be wrapped in arbitrarily many parentheses which only delegate to the inner expression without altering the meaning.
+All expression consist of \code{Primary}'s on an elementary level and can be either boolean, an integer literal, or a variable reference (\code{Lval}); treating \code{Lval} as a \code{Primary} makes variable accesses first-class expressions,
+as is conventional in many languages. In addition, the production allows any expression to be wrapped in arbitrarily many parentheses which only delegate the inner expression without altering the meaning.
 
 \begin{minted}[linenos, breaklines]{yaml}
 ProbChoice:
@@ -281,24 +280,29 @@ Primary infers Expression:
     '(' Expression ')';
 \end{minted}
 
-not whole expression, only the probchoice, everything else pretty much as can be seen in \cite{linkToLangiumExamplpesGit}
-
 \subsection*{Types and terminals}
 
+The excerpt displayed here, defines the types alongside its literal lexical vocabulary. The nonterminal \code{Type} accepts either the literal keyword \code{bool} or an \code{IntType}. An \code{IntType} specifies if it's signed and of what width and may be converted to an \code{IntArray} if brackets are present (line 4).
+The \code{IntegerLiteral} rule recognizes numeric constants with an optional printable sign. Together, these productions ensure that boolean types, integers, and arrays are adequately represented according to the \code{MiniProb} definition (\ref{sec:miniprob}).
 
+Lexical terminals and hidden terminals are distinguished to control which tokens contribute to the final model. Terminals defined in lines 8-13 produce concrete tokens that appear in the parse tree as syntactic elements or attribute values; several of these declarations include a \code{returns} clause (lines 9, 12, 13) to instruct the parser on the semantic type to assign in
+in the resulting node. Hidden terminals defined in lines 14-16 are recognized by the lexer but discarded before parsing, preventing formatting and commentary from influencing the structural representation.
+
+Moreover, the \code{ID} terminal employs a \textit{negative lookahead} to exclude specific sequences from being recognized as identifiers (line 11). This mechanism ensures that boolean literals and integer prefixes are not misclassified as identifiers, preserving the distinct classification of reserved words and type prefixes without requiring further enforcements.
+
+Finally, should input match multiple terminal patterns, the lexer resolves ambiguities by first selecting the pattern that consumes the most characters (longest-match rule) and then, in the event of equal length, the rule declared earlier in the grammar.
 
 \begin{minted}[linenos, breaklines]{yaml}
 Type:
     'bool' | IntType;
 IntType:
     prefix=INT_PREFIX ({infer IntArray} '[' size=INT ']')?;
-IntegerLiteral: // same name as infer IntLiteral creates minor conflicts
+IntegerLiteral:
     sign=('+' | '-')? value=INT suffix=INT_PREFIX;
 
-terminal INT_PREFIX: /[su][1-9][0-9]{0,8}/; // 2^29-1 backend
+terminal INT_PREFIX: /[su][1-9][0-9]{0,8}/;
 terminal BOOL returns boolean: /(true|false)/;
-terminal PROB_QUERY: /probabilistic query:.*;/;
-terminal FORMULA: /formula\s?=\s?.*;/;
+.
 terminal ID: /(?!(true|false)|[su][1-9][0-9]*)[a-zA-Z_][a-zA-Z0-9_\.\:\~]*/;
 terminal STRING returns string: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;
 terminal INT returns number: /[0-9]+/;
@@ -308,6 +312,247 @@ hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 \end{minted}
 
 \section{Type System and Semantic Checks}
+
+Langimus uses validators which check every ast node through visitors if the ... ctype fit. ..d jfl;
+
+\subsection*{Base axioms}
+\[
+\begin{array}{rcll}
+  \tau & ::= & \mathsf{Bool} 
+            \;\bigm|\; \mathsf{Int}_{s,w}
+            \;\bigm|\; \mathsf{Array}<\mathsf{Int}_{s,w}>
+  & (s\in\{\top,\bot\},\;0<w<2^{29}-1) \\[1ex]
+  \Gamma & ::= & \emptyset 
+               \;\bigm|\; \Gamma,\,x:\tau
+\end{array}
+\]
+\\
+\[
+  \frac{}{\Gamma \vdash \mathit{true} : \mathsf{Bool}}
+  \; (\textsc{T-True}), \quad
+  \frac{}{\Gamma \vdash \mathit{false} : \mathsf{Bool}}
+  \; (\textsc{T-False})
+\]
+\[
+  \frac{}
+  {\Gamma \;\vdash\; n^{(s,w)} : \mathsf{Int}_{s,w}}
+  \; (\textsc{T-IntLit}), \quad
+  where\;
+  s \in \{\top, \bot\},
+  \quad
+  w \in \mathbb{N},
+  \quad
+  1 \;\le\; w \;\le\; 2^{29}-1
+\]
+
+\subsection*{Inference rules}
+
+\[
+  \begin{aligned}
+    \frac{x:\tau\in\Gamma}{\Gamma \vdash x : \tau}
+     & \quad(\textsc{T-Var})   \\[2ex]
+    \frac{\Gamma \vdash e : \tau}{\Gamma \vdash (\,e\,) : \tau}
+     & \quad(\textsc{T-Paren})
+  \end{aligned}
+\]
+\[
+  \frac{\Gamma \vdash e : \mathsf{Bool}}
+  {\Gamma \vdash !\,e : \mathsf{Bool}}
+  \quad(\textsc{T-Not})
+\]
+\[
+  \begin{aligned}
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+    \quad
+    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+    {\Gamma \vdash e_1 * e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
+     & \quad(\textsc{T-Mult}) \\[1ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+    \quad
+    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+    {\Gamma \vdash e_1 \,/\, e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
+     & \quad(\textsc{T-Div})  \\[1ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+    \quad
+    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+    {\Gamma \vdash e_1 \% e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\min(w_1, w_2)}}}
+     & \quad(\textsc{T-Mod})  \\[2ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+    \quad
+    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+    {\Gamma \vdash e_1 + e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
+     & \quad(\textsc{T-Add})  \\[1ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+    \quad
+    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+    {\Gamma \vdash e_1 - e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
+     & \quad(\textsc{T-Sub})
+  \end{aligned}
+\]
+
+\[
+  \begin{aligned}
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+    {\Gamma \vdash e_1 < e_2   : \mathsf{Bool}}
+     & (\textsc{T-Lt}) \\[1ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+    {\Gamma \vdash e_1 \le e_2 : \mathsf{Bool}}
+     & (\textsc{T-Le}) \\[1ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+    {\Gamma \vdash e_1 > e_2   : \mathsf{Bool}}
+     & (\textsc{T-Gt}) \\[1ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+    {\Gamma \vdash e_1 \ge e_2 : \mathsf{Bool}}
+     & (\textsc{T-Ge})
+  \end{aligned}
+\]
+\[
+  \begin{aligned}
+    \frac{\Gamma \vdash e_1 : \tau
+      \quad
+      \Gamma \vdash e_2 : \tau}
+    {\Gamma \vdash e_1 == e_2 : \mathsf{Bool}}
+     & \quad(\textsc{T-Eq})  \\[1ex]
+    \frac{\Gamma \vdash e_1 : \tau
+      \quad
+      \Gamma \vdash e_2 : \tau}
+    {\Gamma \vdash e_1 \:!= e_2 : \mathsf{Bool}}
+     & \quad(\textsc{T-Neq})
+  \end{aligned}
+\]
+\[
+  \begin{aligned}
+    \frac{\Gamma \vdash e_1 : \mathsf{Bool}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Bool}}
+    {\Gamma \vdash e_1 \;\code{ &                  & }\; e_2 : \mathsf{Bool}}
+                                & (\textsc{T-And})                            \\[1ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Bool}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Bool}}
+    {\Gamma \vdash e_1 \;\texttt{||}\; e_2 : \mathsf{Bool}}
+                                & (\textsc{T-Or})
+  \end{aligned}
+\]
+\[
+  \frac{\Gamma \vdash e_1 : \tau
+    \quad
+    \Gamma \vdash e_2 : \mathsf{Int}_{s,w}
+    \quad
+    \Gamma \vdash e_3 : \mathsf{Int}_{s,w}
+    \quad
+    \Gamma \vdash e_4 : \tau
+  }
+  {\Gamma \vdash e_1 \:\{e_2 \::\: e_3\}\: e_4 : \tau} \quad(\textsc{T-ProbabilisticAssign.})
+\]
+\[
+  \begin{aligned}
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s, w}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+    {\Gamma \vdash \mathrm{Bernoulli}(e_1,e_2) : \mathsf{Int}_{\bot,1}}
+     & \quad(\textsc{T-Bernoulli}) \\[2ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+    {\Gamma \vdash \mathrm{Uniform}(e_1,e_2) : \mathsf{Int}_{s_2,w_2}}
+     & \quad(\textsc{T-Uniform})
+  \end{aligned}
+\]
+
+\subsection*{Arrays in the Type System}
+
+\paragraph{Type‐Formation}
+\[
+  \frac{\vdash\;\tau\;\mathsf{type}}
+       {\vdash\;\tau\;\mathsf{Array}\;\mathsf{type}}
+  \quad(\textsc{Ty-Array})
+\]
+
+\paragraph{Array Literals (immutable)}  
+\[
+  \frac{\forall i\in 1..n.\;\Gamma\vdash e_i:\tau}
+       {\Gamma\vdash [\,e_1,e_2,\dots,e_n\,] : \tau\;\mathsf{Array}}
+  \quad(\textsc{T-ArrayLit})
+\]
+
+\paragraph{Indexing}
+\[
+  \frac{\Gamma\vdash e : \tau\;\mathsf{Array}
+        \quad
+        \Gamma\vdash i : \mathsf{Int}_{s,w}}
+       {\Gamma\vdash e[i] : \tau}
+  \quad(\textsc{T-Index})
+\]
+
+\paragraph{Update (mutable arrays)}  
+\[
+  \frac{\Gamma\vdash e_1 : \tau\;\mathsf{Array}
+        \quad
+        \Gamma\vdash i : \mathsf{Int}_{s,w}
+        \quad
+        \Gamma\vdash e_2 : \tau}
+       {\Gamma\vdash e_1[i] = e_2 : \mathsf{Unit}}
+  \quad(\textsc{T-Store})
+\]
+
+\paragraph{Length (optional)}  
+\[
+  \frac{\Gamma\vdash e : \tau\;\mathsf{Array}}
+       {\Gamma\vdash \mathsf{length}(e) : \mathsf{Int}_{\bot,\,w_{\mathit{len}}}}
+  \quad(\textsc{T-Length})
+\]
+
+
+\subsection{Worked Example}
+To derive the judgment
+
+$$
+  \emptyset \vdash \mathtt{if}\;\mathtt{true}\;\mathtt{then}\;(1+2)\;\mathtt{else}\;3 : \mathsf{Int},
+$$
+
+we construct the following proof:
+
+$$
+  \dfrac{
+    \dfrac{}{\emptyset \vdash \mathtt{true} : \mathsf{Bool}} \; (\textsc{T-True})
+    \quad
+    \dfrac{
+      \dfrac{}{\emptyset \vdash 1 : \mathsf{Int}} \quad
+      \dfrac{}{\emptyset \vdash 2 : \mathsf{Int}}
+    }{\emptyset \vdash 1+2 : \mathsf{Int}} \; (\textsc{T-Plus})
+    \quad
+    \dfrac{}{\emptyset \vdash 3 : \mathsf{Int}} \; (\textsc{T-Int})
+  }{
+    \emptyset \vdash \mathtt{if}\;\mathtt{true}\;\mathtt{then}\;(1+2)\;\mathtt{else}\;3 : \mathsf{Int}
+  } \; (\textsc{T-If})
+$$
+
+\begin{align*}
+   & \textbf{T-Assign}
+   &                   & \dfrac{Γ ⊢ e : τ \quad x:τ ∈ Γ}
+  {Γ ⊢ x = e\;\mathsf{ok}}                                     \\[1ex]
+   & \textbf{T-IfSt}
+   &                   & \dfrac{Γ ⊢ e : \mathsf{Bool}
+    \quad Γ ⊢ S_1\;\mathsf{ok}
+    \quad Γ ⊢ S_2\;\mathsf{ok}}
+  {Γ ⊢ \mathtt{if}\,(e)\,S_1\,\mathtt{else}\,S_2\;\mathsf{ok}} \\[1ex]
+   & \textbf{T-Seq}
+   &                   & \dfrac{Γ ⊢ S_1\;\mathsf{ok}
+    \quad Γ ⊢ S_2\;\mathsf{ok}}
+  {Γ ⊢ S_1; S_2\;\mathsf{ok}}
+\end{align*}
+
+
+
 \section*{Custom services}
 \label{sec:customservices}
 scoping computation and providers - import
