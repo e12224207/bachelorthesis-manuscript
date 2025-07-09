@@ -317,14 +317,14 @@ Langimus uses validators which check every ast node through visitors if the ... 
 
 \subsection*{Base axioms}
 \[
-\begin{array}{rcll}
-  \tau & ::= & \mathsf{Bool} 
-            \;\bigm|\; \mathsf{Int}_{s,w}
-            \;\bigm|\; \mathsf{Array}<\mathsf{Int}_{s,w}>
-  & (s\in\{\top,\bot\},\;0<w<2^{29}-1) \\[1ex]
-  \Gamma & ::= & \emptyset 
-               \;\bigm|\; \Gamma,\,x:\tau
-\end{array}
+  \begin{array}{rcll}
+    \tau   & ::=                                & \mathsf{Bool}
+    \;\bigm|\; \mathsf{Int}_{s,w}
+    \;\bigm|\; \mathsf{Array}<\mathsf{Int}_{s,w}>
+           & (s\in\{\top,\bot\},\;0<w<2^{29}-1)                 \\[1ex]
+    \Gamma & ::=                                & \emptyset
+    \;\bigm|\; \Gamma,\,x:\tau
+  \end{array}
 \]
 \\
 \[
@@ -344,106 +344,109 @@ Langimus uses validators which check every ast node through visitors if the ... 
   \quad
   1 \;\le\; w \;\le\; 2^{29}-1
 \]
+\[
+  \frac{\vdash\;\mathsf{Int}_{s,w}\;}
+  {\vdash\;\mathsf{Array}<\mathsf{Int}_{s,w}>}
+  \quad(\textsc{Ty-Array})
+\]
 
 \subsection*{Inference rules}
+\begin{multicols}{2}
 
-\[
-  \begin{aligned}
-    \frac{x:\tau\in\Gamma}{\Gamma \vdash x : \tau}
-     & \quad(\textsc{T-Var})   \\[2ex]
-    \frac{\Gamma \vdash e : \tau}{\Gamma \vdash (\,e\,) : \tau}
-     & \quad(\textsc{T-Paren})
-  \end{aligned}
-\]
-\[
-  \frac{\Gamma \vdash e : \mathsf{Bool}}
-  {\Gamma \vdash !\,e : \mathsf{Bool}}
-  \quad(\textsc{T-Not})
-\]
-\[
-  \begin{aligned}
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-    \quad
-    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-    {\Gamma \vdash e_1 * e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
-     & \quad(\textsc{T-Mult}) \\[1ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-    \quad
-    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-    {\Gamma \vdash e_1 \,/\, e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
-     & \quad(\textsc{T-Div})  \\[1ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-    \quad
-    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-    {\Gamma \vdash e_1 \% e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\min(w_1, w_2)}}}
-     & \quad(\textsc{T-Mod})  \\[2ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-    \quad
-    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-    {\Gamma \vdash e_1 + e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
-     & \quad(\textsc{T-Add})  \\[1ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-    \quad
-    \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-    {\Gamma \vdash e_1 - e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,w_{\,\max(w_1, w_2)}}}
-     & \quad(\textsc{T-Sub})
-  \end{aligned}
-\]
+  %–– Column 1 ––%
+  \[
+    \begin{aligned}
+      \frac{x:\tau\in\Gamma}{\Gamma \vdash x : \tau}
+       & (\textsc{T-Var})   \\[2ex]
+      \frac{\Gamma \vdash e : \tau}{\Gamma \vdash (\,e\,) : \tau}
+       & (\textsc{T-Paren}) \\[2ex]
+      \frac{\Gamma \vdash e : \mathsf{Bool}}
+      {\Gamma \vdash \neg e : \mathsf{Bool}}
+       & (\textsc{T-Not})
+    \end{aligned}
+  \]
 
+  \[
+    \begin{aligned}
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+      {\Gamma \vdash e_1 * e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+       & (\textsc{T-Mult}) \\[1ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+      {\Gamma \vdash e_1 / e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+       & (\textsc{T-Div})  \\[1ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+      {\Gamma \vdash e_1 \bmod e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\min(w_1, w_2)}}
+       & (\textsc{T-Mod})  \\[2ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+      {\Gamma \vdash e_1 + e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+       & (\textsc{T-Add})  \\[1ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+      {\Gamma \vdash e_1 - e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+       & (\textsc{T-Sub})
+    \end{aligned}
+  \]
+
+  %–– Column 2 ––%
+  \[
+    \begin{aligned}
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+      {\Gamma \vdash e_1 < e_2   : \mathsf{Bool}}
+       & (\textsc{T-Lt})  \\[1ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+      {\Gamma \vdash e_1 <= e_2 : \mathsf{Bool}}
+       & (\textsc{T-Le})  \\[1ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+      {\Gamma \vdash e_1 > e_2   : \mathsf{Bool}}
+       & (\textsc{T-Gt})  \\[1ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+      {\Gamma \vdash e_1 >= e_2 : \mathsf{Bool}}
+       & (\textsc{T-Ge})  \\[2ex]
+      \frac{\Gamma \vdash e_1 : \tau
+        \quad
+        \Gamma \vdash e_2 : \tau}
+      {\Gamma \vdash e_1 == e_2 : \mathsf{Bool}}
+       & (\textsc{T-Eq})  \\[1ex]
+      \frac{\Gamma \vdash e_1 : \tau
+        \quad
+        \Gamma \vdash e_2 : \tau}
+      {\Gamma \vdash e_1 \:!= e_2 : \mathsf{Bool}}
+       & (\textsc{T-Neq}) \\[2ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Bool}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Bool}}
+      {\Gamma \vdash e_1 \:\&\&\: e_2 : \mathsf{Bool}}
+       & (\textsc{T-And}) \\[1ex]
+      \frac{\Gamma \vdash e_1 : \mathsf{Bool}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Bool}}
+      {\Gamma \vdash e_1 \:||\: e_2 : \mathsf{Bool}}
+       & (\textsc{T-Or})
+    \end{aligned}
+  \]
+\end{multicols}
+
+% now the large probabilistic-assign rule full width:
 \[
-  \begin{aligned}
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
-    {\Gamma \vdash e_1 < e_2   : \mathsf{Bool}}
-     & (\textsc{T-Lt}) \\[1ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
-    {\Gamma \vdash e_1 \le e_2 : \mathsf{Bool}}
-     & (\textsc{T-Le}) \\[1ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
-    {\Gamma \vdash e_1 > e_2   : \mathsf{Bool}}
-     & (\textsc{T-Gt}) \\[1ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
-    {\Gamma \vdash e_1 \ge e_2 : \mathsf{Bool}}
-     & (\textsc{T-Ge})
-  \end{aligned}
-\]
-\[
-  \begin{aligned}
-    \frac{\Gamma \vdash e_1 : \tau
-      \quad
-      \Gamma \vdash e_2 : \tau}
-    {\Gamma \vdash e_1 == e_2 : \mathsf{Bool}}
-     & \quad(\textsc{T-Eq})  \\[1ex]
-    \frac{\Gamma \vdash e_1 : \tau
-      \quad
-      \Gamma \vdash e_2 : \tau}
-    {\Gamma \vdash e_1 \:!= e_2 : \mathsf{Bool}}
-     & \quad(\textsc{T-Neq})
-  \end{aligned}
-\]
-\[
-  \begin{aligned}
-    \frac{\Gamma \vdash e_1 : \mathsf{Bool}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Bool}}
-    {\Gamma \vdash e_1 \;\code{ &                  & }\; e_2 : \mathsf{Bool}}
-                                & (\textsc{T-And})                            \\[1ex]
-    \frac{\Gamma \vdash e_1 : \mathsf{Bool}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Bool}}
-    {\Gamma \vdash e_1 \;\texttt{||}\; e_2 : \mathsf{Bool}}
-                                & (\textsc{T-Or})
-  \end{aligned}
-\]
-\[
-  \frac{\Gamma \vdash e_1 : \tau
+  \frac{
+    \Gamma \vdash e_1 : \tau
     \quad
     \Gamma \vdash e_2 : \mathsf{Int}_{s,w}
     \quad
@@ -451,105 +454,93 @@ Langimus uses validators which check every ast node through visitors if the ... 
     \quad
     \Gamma \vdash e_4 : \tau
   }
-  {\Gamma \vdash e_1 \:\{e_2 \::\: e_3\}\: e_4 : \tau} \quad(\textsc{T-ProbabilisticAssign.})
+  {\Gamma \vdash e_1 \{\,e_2 :\!:\! e_3\}\, e_4 : \tau}
+  \quad(\textsc{T-ProbAssign})
 \]
+
 \[
   \begin{aligned}
-    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s, w}
+    \frac{\Gamma\vdash e : \mathsf{Array}\langle\mathsf{Int}_{s,w}\rangle
       \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s,w}}
+      \Gamma\vdash i : \mathsf{Int}_{s,w}}
+    {\Gamma\vdash e[i] : \mathsf{Int}_{s,w}}
+     & (\textsc{T-Index})     \\[2ex]
+    \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
+      \quad
+      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
     {\Gamma \vdash \mathrm{Bernoulli}(e_1,e_2) : \mathsf{Int}_{\bot,1}}
-     & \quad(\textsc{T-Bernoulli}) \\[2ex]
+     & (\textsc{T-Bernoulli}) \\[2ex]
     \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
       \quad
       \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
     {\Gamma \vdash \mathrm{Uniform}(e_1,e_2) : \mathsf{Int}_{s_2,w_2}}
-     & \quad(\textsc{T-Uniform})
+     & (\textsc{T-Uniform})
   \end{aligned}
 \]
+\subsection*{Statement Typing Rules}
 
-\subsection*{Arrays in the Type System}
-
-\paragraph{Type‐Formation}
 \[
-  \frac{\vdash\;\tau\;\mathsf{type}}
-       {\vdash\;\tau\;\mathsf{Array}\;\mathsf{type}}
-  \quad(\textsc{Ty-Array})
+  \frac{\Gamma\vdash e_1 : \mathsf{Array}<\mathsf{Int}_{s,w}>
+  \quad
+  \Gamma\vdash i    : \mathsf{Int}_{s,w}
+  \quad
+  \Gamma\vdash e_2  : \mathsf{Int}_{s,w}}
+  {\Gamma\vdash e_1[i] = e_2 \;\mathsf{ok}}
+  \quad(\textsc{T-Update})
 \]
 
-\paragraph{Array Literals (immutable)}  
-\[
-  \frac{\forall i\in 1..n.\;\Gamma\vdash e_i:\tau}
-       {\Gamma\vdash [\,e_1,e_2,\dots,e_n\,] : \tau\;\mathsf{Array}}
-  \quad(\textsc{T-ArrayLit})
-\]
-
-\paragraph{Indexing}
-\[
-  \frac{\Gamma\vdash e : \tau\;\mathsf{Array}
+\begin{multicols}{2}
+  % column 1
+  \[
+    \begin{aligned}
+      \frac{\Gamma \vdash e : \mathsf{Bool}
         \quad
-        \Gamma\vdash i : \mathsf{Int}_{s,w}}
-       {\Gamma\vdash e[i] : \tau}
-  \quad(\textsc{T-Index})
-\]
-
-\paragraph{Update (mutable arrays)}  
-\[
-  \frac{\Gamma\vdash e_1 : \tau\;\mathsf{Array}
+        \Gamma \vdash S_1\;\mathsf{ok}
         \quad
-        \Gamma\vdash i : \mathsf{Int}_{s,w}
+        \Gamma \vdash S_2\;\mathsf{ok}}
+      {\Gamma \vdash \mathtt{if}(e)\,S_1\,\mathtt{else}\,S_2\;\mathsf{ok}}
+       & (\textsc{T-If})       \\[1ex]
+      \frac{\Gamma \vdash e : \mathsf{Bool}
         \quad
-        \Gamma\vdash e_2 : \tau}
-       {\Gamma\vdash e_1[i] = e_2 : \mathsf{Unit}}
-  \quad(\textsc{T-Store})
-\]
+        \Gamma \vdash S\;\mathsf{ok}}
+      {\Gamma \vdash \mathtt{while}(e)\,S\;\mathsf{ok}}
+       & (\textsc{T-While})    \\[1ex]
+      \frac{\Gamma \vdash S_1\;\mathsf{ok}
+        \quad
+        \Gamma \vdash S_2\;\mathsf{ok}}
+      {\Gamma \vdash \mathtt{try}\,S_1\,\mathtt{catch}\,S_2\;\mathsf{ok}}
+       & (\textsc{T-TryCatch})
+    \end{aligned}
+  \]
 
-\paragraph{Length (optional)}  
+  % column 2
+  \[
+    \frac{\Gamma \vdash e : \mathsf{Bool}}
+    {\Gamma \vdash \mathtt{observe}\,(e)\;\mathsf{ok}}
+    \quad(\textsc{T-Observe})
+  \]
+
+  \[
+    \frac{\Gamma \vdash e : \tau_e
+      \quad
+      x:\tau \in \Gamma}
+    {\Gamma \vdash x \;\equiv_{comp}\; e\;\mathsf{ok}}
+    \quad(\textsc{T-Assign})
+  \]
+\end{multicols}
+
+
 \[
-  \frac{\Gamma\vdash e : \tau\;\mathsf{Array}}
-       {\Gamma\vdash \mathsf{length}(e) : \mathsf{Int}_{\bot,\,w_{\mathit{len}}}}
-  \quad(\textsc{T-Length})
+  \tau \equiv_{comp} \tau_e\quad\text{iff}\quad
+  \begin{cases}
+    \tau_e = \mathsf{Bool},\ \tau = \mathsf{Bool};                                       \\[4pt]
+    \tau_e = \mathsf{Int}_{\top,w_1},\ \tau = \mathsf{Int}_{\top,w_2},\ w_1 \le w_2;     \\[4pt]
+    \tau_e = \mathsf{Int}_{\top,w_1},\ \tau = \mathsf{Int}_{\bot,w_2},\ w_1 - 1 \le w_2; \\[4pt]
+    \tau_e = \mathsf{Int}_{\bot,w_1},\ \tau = \mathsf{Int}_{\top,w_2},\ w_1 + 1 \le w_2; \\[4pt]
+    \tau_e = \mathsf{Int}_{\bot,w_1},\ \tau = \mathsf{Int}_{\bot,w_2},\ w_1 \le w_2;     \\[4pt]
+    \mathbf{arrays\;analogous\;to\;int}
+  \end{cases}
 \]
-
-
-\subsection{Worked Example}
-To derive the judgment
-
-$$
-  \emptyset \vdash \mathtt{if}\;\mathtt{true}\;\mathtt{then}\;(1+2)\;\mathtt{else}\;3 : \mathsf{Int},
-$$
-
-we construct the following proof:
-
-$$
-  \dfrac{
-    \dfrac{}{\emptyset \vdash \mathtt{true} : \mathsf{Bool}} \; (\textsc{T-True})
-    \quad
-    \dfrac{
-      \dfrac{}{\emptyset \vdash 1 : \mathsf{Int}} \quad
-      \dfrac{}{\emptyset \vdash 2 : \mathsf{Int}}
-    }{\emptyset \vdash 1+2 : \mathsf{Int}} \; (\textsc{T-Plus})
-    \quad
-    \dfrac{}{\emptyset \vdash 3 : \mathsf{Int}} \; (\textsc{T-Int})
-  }{
-    \emptyset \vdash \mathtt{if}\;\mathtt{true}\;\mathtt{then}\;(1+2)\;\mathtt{else}\;3 : \mathsf{Int}
-  } \; (\textsc{T-If})
-$$
-
-\begin{align*}
-   & \textbf{T-Assign}
-   &                   & \dfrac{Γ ⊢ e : τ \quad x:τ ∈ Γ}
-  {Γ ⊢ x = e\;\mathsf{ok}}                                     \\[1ex]
-   & \textbf{T-IfSt}
-   &                   & \dfrac{Γ ⊢ e : \mathsf{Bool}
-    \quad Γ ⊢ S_1\;\mathsf{ok}
-    \quad Γ ⊢ S_2\;\mathsf{ok}}
-  {Γ ⊢ \mathtt{if}\,(e)\,S_1\,\mathtt{else}\,S_2\;\mathsf{ok}} \\[1ex]
-   & \textbf{T-Seq}
-   &                   & \dfrac{Γ ⊢ S_1\;\mathsf{ok}
-    \quad Γ ⊢ S_2\;\mathsf{ok}}
-  {Γ ⊢ S_1; S_2\;\mathsf{ok}}
-\end{align*}
 
 
 
