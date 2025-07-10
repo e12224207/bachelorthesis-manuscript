@@ -317,6 +317,92 @@ Langium offers the option of formalizing semantic checks and type systems throug
 Once registered, this service traverses the abstract syntax tree via a visitor pattern, invoking node-type specific validation routines at each step.
 The following sections describe the implementation of static semantics and the design of the type system.
 
+\subsection*{Validator}
+
+The excerpt below presents the registration function exported from \code{validator.ts} that consolidates all validation routines for statically
+verifying the parsed syntax tree. This function integrates those checks into the overall services infrastructure and is subsequently invoked in \code{module.ts} to
+initialize the complete set of services. As noted, every AST node is processed during the validation phase. Each rule may declare one or more validation methods
+(provided as an array). These methods receive two parameters - the node instance itself and a ValidationAcceptor - which is used to produce diagnostics shown in the editor, such as error markers, warnings, and informational messages.
+
+
+
+\begin{minted}[linenos]{ts}
+  export function registerValidationChecks(services: MiniProbServices) {
+  const registry = services.validation.ValidationRegistry;
+  const validator = services.validation.MiniProbValidator;
+  const checks: ValidationChecks<MiniProbAstType> = {
+    Lval: validator.checkArrayAccess,
+    FuncCall: validator.checkFunctionCalls,
+    Func: validator.checkFunctionDefinitions,
+    .
+    .
+    .
+    IntegerLiteral: validator.checkIntegerLiteral,
+    Program: validator.checkMainOccurrences
+  };
+  registry.register(checks, validator);
+}
+\end{minted}
+
+These validations are AST-driven logical procedures that verify specified conditions on the syntax tree. This means that validation is performed by statically inspecting
+each node's structure, attributes, and inter-node relationships, without relying on runtime information or any other states.
+Each procedure either invokes the \code{ValidationAcceptor} to report deviations when constraints are violated or lets the node pass unremarked when it
+satisfies the criteria. As an example, consider the following \code{checkMainOccurrences} method, which enforces the invariant that a \code{main()} function must be defined exactly once in each program.
+\begin{minted}[linenos]{ts}
+  checkMainOccurrences(node: Program, accept: ValidationAcceptor) {
+     const functionNames = node.functions.filter(f => f.name === "main")
+            .map((f) => f.name);
+     if (functionNames.length <= 0) {
+      accept("error", 'Each program needs a \'main()\' function.', {
+        node,
+        property: "functions"
+      });
+     }
+     .
+     .
+}
+\end{minted}
+
+Beyond basic AST-based checks, the analysis can be extended by incorporating models that augment node-level information with additional contextual or semantic data.
+In these frameworks, the AST serves as the foundational seed from which richer representations and semantics are derived and maintained in dedicated structures.
+This also enables the implementation of a custom type system whose validation routines are registered alongside other checks, allowing the validator to
+invoke type-checking services during the validation phase.
+
+The type system used here is much simpler than those found in mainstream GPLs and comprises just four files. The \code{operation.ts} and \code{compatible.ts}
+modules each contain targeted logic: for assignments and function calls, \code{compatible.ts} verifies that the involved types are compatible (the integer corner cases are handled here as well),
+while for all expressions and operators, \code{operation.ts} checks that the operand types are valid for the given operation. Both return their judgement as a simple boolean to
+the validator, which can react accordingly - and already aware of the involved types - produce detailed error messages.
+
+The \code{description.ts} module defines the core vocabulary of the type system, including a TypeDescription union (e.g. \code{BooleanTypeDescription}, \code{IntegerTypeDescription}, etc.),
+factory functions (\code{createIntegerType}, \code{createErrorType}, …) and predicates (\code{isIntegerType}, \code{typeToString}, …). It also introduces an explicit
+\code{ErrorTypeDescription} to represent and propagate type-checking failures without interrupting the overall inference process. The \code{infer.ts} file leverages these
+descriptions by traversing the AST: for each node it recursively infers subexpression types - adhering to the system's inference compatibility rules (see axiomatic rules below)-
+and returns either a concrete \code{TypeDescription} or the \code{ErrorTypeDescription} when mismatches occur, with a simple cache mechanism preventing infinite recursion and boosting performance.
+
+The cache is instantiated anew for each inference run on a node, eliminating any risk of residual data or cross-contamination and ensuring fully deterministic results.
+However, because it isn't persisted between runs, identical subtrees get re-evaluated on every pass, which can introduce redundant work.
+Unlike incremental parsing systems that retain state to avoid reprocessing unchanged regions, this approach performs a complete, conventional traversal each time.
+
+As an example ....
+\begin{minted}{ts}
+  checkUnaryExpressions(node: LogicalNegation, accept: ValidationAcceptor) {
+    const map = this.getTypeCache();
+    const operandType = inferType(node.operand, map);
+
+    if (isErrorType(operandType)) {
+      accept('error', operandType.message, { node: operandType.source ?? node });
+      return;
+    }
+    if (!isLegalOperation(node.operator, operandType)) {
+      accept(
+        'error',
+        `The operation '${node.operator}' is not possible on type '${typeToString(operandType)}'`,
+        { node, property: 'operand' }
+      );
+    }
+  }
+\end{minted}
+
 \subsubsection*{Base axioms}
 \[
   \begin{array}{rcll}
