@@ -94,7 +94,7 @@ Its open-source nature encourages collaboration and continuous improvement throu
 
 \section{High-Level Architecture Diagram}
 update diagram such that cusomt services also extends the lsp providers
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \includegraphics[width=\textwidth]{graphics/langiumArchitecture.png}
   \caption{Architecture overview of a Langium project}
@@ -313,20 +313,21 @@ hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 
 \section{Type System and Semantic Checks}
 
-Langimus uses validators which check every ast node through visitors if the ... ctype fit. ..d jfl;
+Langium offers the option of formalizing semantic checks and type systems through a static validation service which can be registered in its dependency-injection framework.
+Once registered, this service traverses the abstract syntax tree via a visitor pattern, invoking node-type specific validation routines at each step.
+The following sections describe the implementation of static semantics and the design of the type system.
 
-\subsection*{Base axioms}
+\subsubsection*{Base axioms}
 \[
   \begin{array}{rcll}
     \tau   & ::=                                & \mathsf{Bool}
     \;\bigm|\; \mathsf{Int}_{s,w}
-    \;\bigm|\; \mathsf{Array}<\mathsf{Int}_{s,w}>
+    \;\bigm|\; \mathsf{Array}\langle\mathsf{Int}_{s,w}\rangle
            & (s\in\{\top,\bot\},\;0<w<2^{29}-1)                 \\[1ex]
     \Gamma & ::=                                & \emptyset
     \;\bigm|\; \Gamma,\,x:\tau
   \end{array}
 \]
-\\
 \[
   \frac{}{\Gamma \vdash \mathit{true} : \mathsf{Bool}}
   \; (\textsc{T-True}), \quad
@@ -346,14 +347,13 @@ Langimus uses validators which check every ast node through visitors if the ... 
 \]
 \[
   \frac{\vdash\;\mathsf{Int}_{s,w}\;}
-  {\vdash\;\mathsf{Array}<\mathsf{Int}_{s,w}>}
+  {\vdash\;\mathsf{Array}\langle\mathsf{Int}_{s,w}\rangle}
   \quad(\textsc{Ty-Array})
 \]
 
-\subsection*{Inference rules}
+\subsubsection*{Inference rules}
 \begin{multicols}{2}
 
-  %–– Column 1 ––%
   \[
     \begin{aligned}
       \frac{x:\tau\in\Gamma}{\Gamma \vdash x : \tau}
@@ -396,7 +396,6 @@ Langimus uses validators which check every ast node through visitors if the ... 
     \end{aligned}
   \]
 
-  %–– Column 2 ––%
   \[
     \begin{aligned}
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
@@ -443,7 +442,6 @@ Langimus uses validators which check every ast node through visitors if the ... 
   \]
 \end{multicols}
 
-% now the large probabilistic-assign rule full width:
 \[
   \frac{
     \Gamma \vdash e_1 : \tau
@@ -477,10 +475,10 @@ Langimus uses validators which check every ast node through visitors if the ... 
      & (\textsc{T-Uniform})
   \end{aligned}
 \]
-\subsection*{Statement Typing Rules}
+\subsubsection*{Statement Typing Rules}
 
 \[
-  \frac{\Gamma\vdash e_1 : \mathsf{Array}<\mathsf{Int}_{s,w}>
+  \frac{\Gamma\vdash e_1 : \mathsf{Array}\langle\mathsf{Int}_{s,w}\rangle
   \quad
   \Gamma\vdash i    : \mathsf{Int}_{s,w}
   \quad
@@ -531,7 +529,7 @@ Langimus uses validators which check every ast node through visitors if the ... 
 
 
 \[
-  \tau \equiv_{comp} \tau_e\quad\text{iff}\quad
+  \tau \equiv_{comp} e\quad\text{iff}\quad
   \begin{cases}
     \tau_e = \mathsf{Bool},\ \tau = \mathsf{Bool};                                       \\[4pt]
     \tau_e = \mathsf{Int}_{\top,w_1},\ \tau = \mathsf{Int}_{\top,w_2},\ w_1 \le w_2;     \\[4pt]
