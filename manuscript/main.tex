@@ -20,6 +20,7 @@
 \usepackage{graphicx}
 \usepackage{wrapfig}
 \usepackage[colorlinks,linkcolor=blue,urlcolor=cyan]{hyperref}
+\usepackage{xcolor}
 \usepackage{caption}
 \usepackage{titlesec}
 \titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{}{0pt}{}
@@ -40,6 +41,8 @@
 \addbibresource{bibliography/implementation.bib}
 \usepackage{./simplebnf}
 \def\code#1{\texttt{\detokenize{#1}}}
+
+\definecolor{lightgray}{gray}{0.95}
 
 \begin{document}
 
@@ -348,7 +351,7 @@
 \chapter{Expanded Code Listings}
 % Additional code excerpts.
 \inputminted[linenos, breaklines]{yaml}{samples/mini-prob.langium}
-\captionof{listing}{Langium grammar definition of MiniProb}
+\captionof{listing}{Langium grammar definition of MiniProb (LL(2) parsable)}
 \label{list:langium-grammar}
 
 \end{document}

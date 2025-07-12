@@ -188,7 +188,7 @@ When a field references multiple distinct rules, the \code{type} keyword has to 
 In particular, all union members must share the same underlying value type: consider line 16, 12 and 20, Lval refers to either Param or Decl expecting the resolution to occur
 over an ID.
 
-\begin{minted}[linenos, breaklines]{yaml}
+\begin{minted}[bgcolor=lightgray, frame=lines, linenos, breaklines]{yaml}
 grammar MiniProb
 type DeclOrParam = Decl | Param;
 entry Program:
@@ -218,11 +218,6 @@ Arg:
 \end{minted}
 
 \subsection*{Expressions}
-
-Most of the expression system is omitted here, as it closely follows the \textit{operator-precedence grammar} pattern common to LL parsers \cite{operatorPrecedence}.
-Typically, a grammar defines a series of nonterminals - each corresponding to a distinct operator-precedence level (from primaries up to full expressions) - and structures its productions so as to eliminate left recursion while preserving left-associative evaluation at every level.
-This arrangement guarantees that the parser can always choose the correct production with a single lookahead token, ensuring LL(1) compliance.
-
 \begin{wrapfigure}{r}{0.40\textwidth}
   \centering
   \begin{forest}
@@ -256,6 +251,11 @@ This arrangement guarantees that the parser can always choose the correct produc
   \label{fig:op-prec-tree}
 \end{wrapfigure}
 
+Most of the expression system is omitted here, as it closely follows the \textit{operator-precedence grammar} pattern common to LL parsers \cite{operatorPrecedence}.
+Typically, a grammar defines a series of nonterminals - each corresponding to a distinct operator-precedence level (from primaries up to full expressions) - and structures its productions so as to eliminate left recursion while preserving left-associative evaluation at every level.
+This arrangement guarantees that the parser can always choose the correct production with a single lookahead token, ensuring LL(1) compliance.
+
+
 In Langium, rules can be made to share other base classes than \code{AstNode} by utilizing the \code{infers} keyword. This is especially useful for creating a layered expression system, as all the levels infer from the top-most expression (line 3), which follows logical abstraction and enables dynamic and easy resolution of parsed expressions.
 The lines depicted here have been selected because they include the \code{Probabilistic Assignment}, a construct particular to MiniProb (see \ref{sec:miniprob}), alongside the \code{Primary} rule, which defines the core forms to which all expressions ultimately resolve.
 The topmost level of the precedence hierarchy was originally occupied by the disjunction operator (\code{||}), but was ultimately edged out by the probabilistic assignment. This behavior is enabled by another Langium specific command \code{infers}, which instructs a rule to create a new AST node based on the structure of the input.
@@ -264,7 +264,7 @@ In this case, an \code{Expression} is by default parsed as a \code{LogicalOr}, b
 All expression consist of \code{Primary}'s on an elementary level and can be either boolean, an integer literal, or a variable reference (\code{Lval}); treating \code{Lval} as a \code{Primary} makes variable accesses first-class expressions,
 as is conventional in many languages. In addition, the production allows any expression to be wrapped in arbitrarily many parentheses which only delegate the inner expression without altering the meaning.
 
-\begin{minted}[linenos, breaklines]{yaml}
+\begin{minted}[bgcolor=lightgray, frame=lines, linenos, breaklines]{yaml}
 ProbChoice:
     '{'numerator=Expression ':' denominator=Expression '}';
 Expression:
@@ -292,7 +292,7 @@ Moreover, the \code{ID} terminal employs a \textit{negative lookahead} to exclud
 
 Finally, should input match multiple terminal patterns, the lexer resolves ambiguities by first selecting the pattern that consumes the most characters (longest-match rule) and then, in the event of equal length, the rule declared earlier in the grammar.
 
-\begin{minted}[linenos, breaklines]{yaml}
+\begin{minted}[bgcolor=lightgray, frame=lines, linenos, breaklines]{yaml}
 Type:
     'bool' | IntType;
 IntType:
@@ -324,9 +324,8 @@ verifying the parsed syntax tree. This function integrates those checks into the
 initialize the complete set of services. As noted, every AST node is processed during the validation phase. Each rule may declare one or more validation methods
 (provided as an array). These methods receive two parameters - the node instance itself and a ValidationAcceptor - which is used to produce diagnostics shown in the editor, such as error markers, warnings, and informational messages.
 
-
-
-\begin{minted}[linenos]{ts}
+\begin{center}
+  \begin{minted}[bgcolor=lightgray, frame=lines, linenos]{ts}
   export function registerValidationChecks(services: MiniProbServices) {
   const registry = services.validation.ValidationRegistry;
   const validator = services.validation.MiniProbValidator;
@@ -343,12 +342,13 @@ initialize the complete set of services. As noted, every AST node is processed d
   registry.register(checks, validator);
 }
 \end{minted}
+\end{center}
 
 These validations are AST-driven logical procedures that verify specified conditions on the syntax tree. This means that validation is performed by statically inspecting
 each node's structure, attributes, and inter-node relationships, without relying on runtime information or any other states.
 Each procedure either invokes the \code{ValidationAcceptor} to report deviations when constraints are violated or lets the node pass unremarked when it
 satisfies the criteria. As an example, consider the following \code{checkMainOccurrences} method, which enforces the invariant that a \code{main()} function must be defined exactly once in each program.
-\begin{minted}[linenos]{ts}
+\begin{minted}[bgcolor=lightgray, frame=lines, linenos]{ts}
   checkMainOccurrences(node: Program, accept: ValidationAcceptor) {
      const functionNames = node.functions.filter(f => f.name === "main")
             .map((f) => f.name);
@@ -364,27 +364,32 @@ satisfies the criteria. As an example, consider the following \code{checkMainOcc
 \end{minted}
 
 Beyond basic AST-based checks, the analysis can be extended by incorporating models that augment node-level information with additional contextual or semantic data.
-In these frameworks, the AST serves as the foundational seed from which richer representations and semantics are derived and maintained in dedicated structures.
+In such addons, the AST serves as the seed from which richer representations and semantics are derived and maintained in dedicated structures.
 This also enables the implementation of a custom type system whose validation routines are registered alongside other checks, allowing the validator to
 invoke type-checking services during the validation phase.
 
 The type system used here is much simpler than those found in mainstream GPLs and comprises just four files. The \code{operation.ts} and \code{compatible.ts}
 modules each contain targeted logic: for assignments and function calls, \code{compatible.ts} verifies that the involved types are compatible (the integer corner cases are handled here as well),
 while for all expressions and operators, \code{operation.ts} checks that the operand types are valid for the given operation. Both return their judgement as a simple boolean to
-the validator, which can react accordingly - and already aware of the involved types - produce detailed error messages.
+the validator, which can react accordingly and - already aware of the involved types - produce detailed error messages.
 
 The \code{description.ts} module defines the core vocabulary of the type system, including a TypeDescription union (e.g. \code{BooleanTypeDescription}, \code{IntegerTypeDescription}, etc.),
 factory functions (\code{createIntegerType}, \code{createErrorType}, …) and predicates (\code{isIntegerType}, \code{typeToString}, …). It also introduces an explicit
 \code{ErrorTypeDescription} to represent and propagate type-checking failures without interrupting the overall inference process. The \code{infer.ts} file leverages these
-descriptions by traversing the AST: for each node it recursively infers subexpression types - adhering to the system's inference compatibility rules (see axiomatic rules below)-
-and returns either a concrete \code{TypeDescription} or the \code{ErrorTypeDescription} when mismatches occur, with a simple cache mechanism preventing infinite recursion and boosting performance.
+descriptions by traversing the AST: for each node it recursively infers subexpression types - adhering to the system's inference and compatibility rules (see axiomatic rules below)-
+and returns either a concrete \code{TypeDescription} or the \code{ErrorTypeDescription} when conflicts occur, with a simple cache mechanism preventing infinite recursion and boosting performance.
 
 The cache is instantiated anew for each inference run on a node, eliminating any risk of residual data or cross-contamination and ensuring fully deterministic results.
-However, because it isn't persisted between runs, identical subtrees get re-evaluated on every pass, which can introduce redundant work.
+However, because it isn't persisted between runs, identical subtrees get re-evaluated for every node, which may introduce redundant work.
 Unlike incremental parsing systems that retain state to avoid reprocessing unchanged regions, this approach performs a complete, conventional traversal each time.
+??try the cache service and see if better???
+\\
+\\
+As an example of how the type system is employed in the validator, this code snippet creates a new cache (a map of \code{ASTNode} -> \code{TypeDescription}) and calls the
+\code{inferType} method, which returns the concrete type of the operand. If any inference steps conflict during this process, an \code{ErrorType} is returned and the
+propagated message is displayed. Otherwise, the validator verifies that the resolved type is allowed for this operand and handles the error accordingly.
 
-As an example ....
-\begin{minted}{ts}
+\begin{minted}[bgcolor=lightgray, frame=lines, breaklines, linenos]{ts}
   checkUnaryExpressions(node: LogicalNegation, accept: ValidationAcceptor) {
     const map = this.getTypeCache();
     const operandType = inferType(node.operand, map);
@@ -402,6 +407,54 @@ As an example ....
     }
   }
 \end{minted}
+
+\subsection{Semantic and type checks}
+
+\begin{description}
+
+  \item[\texttt{checkArrayAccess (Lval)}]
+    Infers the index expression’s type; reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, or if it is not an integer.
+
+  \item[\texttt{checkAssignments (Assignment)}]
+    Infers both left- and right-hand types (expression or distribution), reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, and finally verifies that the right-hand type is compatible with the left.
+
+  \item[\texttt{checkFunctionCalls (FuncCall)}]
+    Ensures the argument count matches the function's parameter list; for each argument, infers its type and the corresponding parameter's type, reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, checks compatibility, and enforces “value-result” parameters to be of equivalent types.
+
+  \item[\texttt{checkFunctionDefinitions (Func)}]
+    Enforces that a function named \texttt{main} has no parameters, and that no two functions in the same \texttt{Program} share the same name.
+
+  \item[\texttt{checkMainOccurrences (Program)}]
+    Counts occurrences of functions named \texttt{main} and emits an error if there are zero or more than one, ensuring exactly one \texttt{main()} per program.
+
+  \item[\texttt{checkQueryFunctionCall (Query)}]
+    Verifies that the referenced function has at least one parameter and that at least one of them is declared \texttt{byRef} (value-result).
+
+  \item[\texttt{checkProbabilisticChoices (ProbChoice)}]
+    Infers the types of numerator and denominator, reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, checks that the `:` operation is legal for those types, prevents division by zero, and enforces that the resulting probability lies in \([0,1]\).
+
+  \item[\texttt{checkDistributions (Distribution)}]
+    Confirms exactly two arguments for each distribution, reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, then ensures both parameters are integers.
+
+  \item[\texttt{checkBinaryExpressions (BinaryExpression)}]
+    Infers left and right operand types, reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, and verifies that the binary operator is legal for those types.
+
+  \item[\texttt{checkUnaryExpressions (LogicalNegation)}]
+    Infers the operand's type, reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, and ensures the logical negation operator is legal for that type.
+
+  \item[\texttt{checkIntegerLiteral (IntegerLiteral)}]
+    Validates that the literal's token text contains no internal spaces, reporting an error otherwise.
+
+  \item[\texttt{checkDeclarationIds (Decl)}]
+    Gathers all declarations in the same scope(see ScopeProvider below), detects duplicate names within the node's own list and against existing declarations, and reports any repeats.
+
+  \item[\texttt{checkObservationCondition (Observation)}]
+    Infers the condition's type and reports an error unless it is boolean.
+
+\end{description}
+\textsuperscript{*} Occurring mostly due to mismatching types of sub-expressions.
+
+\subsection{Axiomatic representation}
 
 \subsubsection*{Base axioms}
 \[
@@ -457,27 +510,27 @@ As an example ....
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
       \quad
       \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-      {\Gamma \vdash e_1 * e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+      {\Gamma \vdash e_1 * e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Mult}) \\[1ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
       \quad
       \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-      {\Gamma \vdash e_1 / e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+      {\Gamma \vdash e_1 / e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Div})  \\[1ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
       \quad
       \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-      {\Gamma \vdash e_1 \bmod e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\min(w_1, w_2)}}
+      {\Gamma \vdash e_1 \bmod e_2 : \mathsf{Int}_{s_1\lor s_2,\,\min(w_1, w_2)}}
        & (\textsc{T-Mod})  \\[2ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
       \quad
       \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-      {\Gamma \vdash e_1 + e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+      {\Gamma \vdash e_1 + e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Add})  \\[1ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
       \quad
       \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
-      {\Gamma \vdash e_1 - e_2 : \mathsf{Int}_{s_{\,s_1\lor s_2},\,\max(w_1, w_2)}}
+      {\Gamma \vdash e_1 - e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Sub})
     \end{aligned}
   \]
