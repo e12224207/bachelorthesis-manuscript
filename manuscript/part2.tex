@@ -143,13 +143,8 @@ matching and code folding, and is the one consumed by the extension. Customizing
 Notably, projects initialized with the scaffolding tool include extra files not discussed; these include, amongst others, the Monarch grammar files, Vite-related configs,
 and setup scripts - scaffolded for a web demo but can be removed when solely focusing on developing the language tooling extension.
 
-\section{Language Server Protocol}
-control flow of lsp from file to lsp to editor
-
-custom providers, computators
-
 \section{Data Flow and Control Flow}
-
+control flow of lsp from file to lsp to editor
 
 \chapter{Implementation Details}
 \label{sec:langium-grammar}
@@ -216,6 +211,7 @@ Arg:
 .
 .
 \end{minted}
+\captionof{listing}{Langium grammar core of MiniProb}
 
 \subsection*{Expressions}
 \begin{wrapfigure}{r}{0.40\textwidth}
@@ -279,6 +275,7 @@ Primary infers Expression:
     Lval |
     '(' Expression ')';
 \end{minted}
+\captionof{listing}{Langium grammar expression system of MiniProb}
 
 \subsection*{Types and terminals}
 
@@ -310,6 +307,7 @@ hidden terminal WS: /\s+/;
 hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 \end{minted}
+\captionof{listing}{Terminals and patterns of MiniProb}
 
 \section{Type System and Semantic Checks}
 
@@ -324,8 +322,8 @@ verifying the parsed syntax tree. This function integrates those checks into the
 initialize the complete set of services. As noted, every AST node is processed during the validation phase. Each rule may declare one or more validation methods
 (provided as an array). These methods receive two parameters - the node instance itself and a ValidationAcceptor - which is used to produce diagnostics shown in the editor, such as error markers, warnings, and informational messages.
 
-\begin{center}
-  \begin{minted}[bgcolor=lightgray, frame=lines, linenos]{ts}
+
+\begin{minted}[bgcolor=lightgray, frame=lines, linenos]{ts}
   export function registerValidationChecks(services: MiniProbServices) {
   const registry = services.validation.ValidationRegistry;
   const validator = services.validation.MiniProbValidator;
@@ -335,14 +333,13 @@ initialize the complete set of services. As noted, every AST node is processed d
     Func: validator.checkFunctionDefinitions,
     .
     .
-    .
     IntegerLiteral: validator.checkIntegerLiteral,
     Program: validator.checkMainOccurrences
   };
   registry.register(checks, validator);
 }
 \end{minted}
-\end{center}
+\captionof{listing}{Validation checks registrations}
 
 These validations are AST-driven logical procedures that verify specified conditions on the syntax tree. This means that validation is performed by statically inspecting
 each node's structure, attributes, and inter-node relationships, without relying on runtime information or any other states.
@@ -362,6 +359,8 @@ satisfies the criteria. As an example, consider the following \code{checkMainOcc
      .
 }
 \end{minted}
+\captionof{listing}{Sample of validation process}
+\vspace{1em}
 
 Beyond basic AST-based checks, the analysis can be extended by incorporating models that augment node-level information with additional contextual or semantic data.
 In such addons, the AST serves as the seed from which richer representations and semantics are derived and maintained in dedicated structures.
@@ -407,6 +406,7 @@ propagated message is displayed. Otherwise, the validator verifies that the reso
     }
   }
 \end{minted}
+\captionof{listing}{Unary expression validation checks}
 
 \subsection{Semantic and type checks}
 
@@ -492,7 +492,6 @@ propagated message is displayed. Otherwise, the validator verifies that the reso
 
 \subsubsection*{Inference rules}
 \begin{multicols}{2}
-
   \[
     \begin{aligned}
       \frac{x:\tau\in\Gamma}{\Gamma \vdash x : \tau}
@@ -508,33 +507,32 @@ propagated message is displayed. Otherwise, the validator verifies that the reso
   \[
     \begin{aligned}
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
       {\Gamma \vdash e_1 * e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Mult}) \\[1ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
       {\Gamma \vdash e_1 / e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Div})  \\[1ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
       {\Gamma \vdash e_1 \bmod e_2 : \mathsf{Int}_{s_1\lor s_2,\,\min(w_1, w_2)}}
        & (\textsc{T-Mod})  \\[2ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
       {\Gamma \vdash e_1 + e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Add})  \\[1ex]
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s_1,w_1}
-      \quad
-      \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
+        \quad
+        \Gamma \vdash e_2 : \mathsf{Int}_{s_2,w_2}}
       {\Gamma \vdash e_1 - e_2 : \mathsf{Int}_{s_1\lor s_2,\,\max(w_1, w_2)}}
        & (\textsc{T-Sub})
     \end{aligned}
   \]
-
   \[
     \begin{aligned}
       \frac{\Gamma \vdash e_1 : \mathsf{Int}_{s,w}
@@ -681,14 +679,71 @@ propagated message is displayed. Otherwise, the validator verifies that the reso
 
 
 
-\section*{Custom services}
+\section{Custom services}
 \label{sec:customservices}
-scoping computation and providers - import
+
+Langium's customization model relies on a straightforward override and extend approach. For each core capability - parsing, validation, indexing, scoping or completion
+- there is a base service available for replacement or augmentation. Once custom services are registered they integrate seamlessly with all LSP processes such as name
+resolution, reference linking, code completion and hover, functioning as native parts of the language server.
+\\\\
+In this snippet, the project's main \code{module.ts} file defines \code{MiniProbModule}, binding \code{MiniProbValidator} in the \code{validation} object and registering
+\code{ScopeProvider} and \code{ScopeComputation} factories in the \code{references} object. The exported \code{createMiniProbServices} function then calls \code{inject},
+passing the shared context, the generated module, and \code{MiniProbModule} to populate the \code{DI} container. Once the \code{MiniProb} services instance is created,
+it is registered with \code{shared.ServiceRegistry.register} (language-agnostic services and infrastructure), and \code{registerValidationChecks} is invoked to run the validator's own setup routine, completing the integration of the custom services,
+causing the resolution of validation and reference services to use the custom implementations in place of the defaults.
+
+\begin{minted}[bgcolor=lightgray, frame=lines, breaklines, linenos]{ts}
+  export const MiniProbModule: Module<
+  MiniProbServices,
+  PartialLangiumServices & MiniProbAddedServices
+> = {
+  validation: {
+    MiniProbValidator: (services) => new MiniProbValidator(services),
+  },
+  references: {
+    ScopeProvider: (services) => new MiniProbScopeProvider(services),
+    ScopeComputation: (services) => new MiniProbScopeComputation(services),
+  }
+};
+
+export function createMiniProbServices(context: DefaultSharedModuleContext): {
+  shared: LangiumSharedServices;
+  MiniProb: MiniProbServices;
+} {
+  .
+  const MiniProb = inject(_, MiniProbGeneratedModule, MiniProbModule);
+  shared.ServiceRegistry.register(MiniProb);
+  registerValidationChecks(MiniProb);
+  .
+}
+\end{minted}
+\captionof{listing}{Custom service registration}
+
+\subsection*{Scope computation}
+The \code{MiniProbScopeComputation} class extends Langium's \code{DefaultScopeComputation} to enrich the set of exported symbols with user-defined top-level declarations. By overriding the asynchronous \code{computeExports} method, it first invokes \code{super.computeExports(document)} to collect the standard exports (primarily global functions). It then retrieves the parsed \code{Program} AST via \code{document.parseResult.value} and iterates over each \code{decl} in \code{program.declarations} - these \code{decl}s represent top-level declarations. For every name in \code{decl.names}, a new \code{AstNodeDescription} is created and appended to the export list using \code{this.descriptions.createDescription(decl, name, document)}. This ensures that global declarations - beyond the built-in function exports - are available to the import mechanism and subsequently indexed by the \code{IndexManager} for cross-file reference resolution.
+\begin{minted}[bgcolor=lightgray, frame=lines, breaklines, linenos]{ts}
+  export class MiniProbScopeComputation extends DefaultScopeComputation {
+  override async computeExports(document: LangiumDocument<AstNode>): Promise<AstNodeDescription[]> {
+    //compute default exports (functions)
+    const exports = await super.computeExports(document);
+
+    const program = document.parseResult.value as Program;
+
+    //export top level declarations
+    for (const decl of program.declarations ?? []) {
+      for (const name of decl.names) {
+        exports.push(this.descriptions.createDescription(decl, name, document));
+      }
+    }
+
+    return exports;
+  }
+}
+\end{minted}
+\subsection*{Scope provider}
+import
+
 \section{VS Code Extension Points}
 textmate highlighting lang-config.json
-\section{Testing \& Validation}
-
-\chapter{Performance \& Usability}
+\section{Testing}
 \section{Parsing Speed}
-\section{Editor Responsiveness}
-\section{User Feedback}
