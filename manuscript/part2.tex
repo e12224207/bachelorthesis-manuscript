@@ -740,8 +740,104 @@ The \code{MiniProbScopeComputation} class extends Langium's \code{DefaultScopeCo
   }
 }
 \end{minted}
+\captionof{listing}{Custom ScopeComputation service}
+
 \subsection*{Scope provider}
-import
+
+The custom scope provider focuses specifically on two kinds of nodes - function calls (\code{FuncCall}) and variable references (\code{LVal}) - since
+these are the only AST nodes in the MiniProb grammar that establish referential links to other symbols. By subclassing the base \code{ScopeProvider} and overriding
+its \code{getScope} method, the provider can dispatch to specialized logic for these two cases while delegating all other node types back to the default implementation.
+This fallback invocation of \code{super.getScope()} outside of the \code{FuncCall} and \code{LVal} branches ensures that any other or future nodes will receive a fully defined and well-formed scope, preserving completeness of the overall resolution process.
+
+Specialized handling is required because the language supports an import mechanism that selectively brings in only top-level definitions from other files, while excluding
+all other symbols, which are exported by default into a workspace-wide scope governed by the \code{IndexManager}. In the \code{LVal} branch, the provider correctly resolves
+multiple identifiers declared in a single declarations statement (for example, \code{u8 i1, i2, i3}) distinguishing between block-scope and global variables, as well as including function parameters as valid resolutions.
+In the \code{FuncCall} branch, default behavior is overridden to prevent 'ghost' functions - placeholder symbols automatically invented for unresolved identifiers - and to include in-flight local declarations that appear before their closing delimiters in live editing scenarios (a solution which inspects raw \code{CST} text and may require future revision).
+
+Because both \code{FuncCall} and \code{LVal} reference the same identifier token pattern, \code{getScope} is invoked for both branches on the same node.
+If distinguishing syntactic context - such as surrounding parentheses for calls or the presence of an equals sign for assignments - is present, the provider resolves only once aware of what path to choose.
+\\
+
+The helper method below builds a resolution scope for symbols imported from other files. It first transforms each import entry into an absolute URI by joining the current
+document's directory path with the relative import path. Next, it invokes the \code{IndexManager} to collect all symbol descriptions of the requested type across the entire
+workspace, filtering to only those defined in the imported files. Notably, only symbols of already parsed document are managed by the \code{IndexManager}.
+To improve performance, the retrieved descriptions are stored in a cache keyed by the document URI and symbol kind, and wrapped in a MapScope for efficient lookup. 
+\begin{minted}[bgcolor=lightgray, frame=lines, breaklines, linenos]{ts}
+  private getImportedScope(
+    fileImports: FileImport[],
+    currentUri: URI,
+    targetNodeType: string
+  ): Stream<AstNodeDescription> {
+    const importUris = fileImports.map((f) => {
+      const filePath = posix.join(dirname(currentUri.path), f.file);
+      return currentUri.with({ path: filePath }).toString();
+    });
+
+    const importKey = 'imported-';
+    if (targetNodeType === Func) {
+      const importedFuncDescriptions = this.descriptionCache.get(
+        currentUri,
+        importKey + targetNodeType,
+        () => new MapScope(this.indexManager.allElements(Func, new Set<string>(importUris)))
+      );
+      return importedFuncDescriptions.getAllElements();
+    } 
+    .
+    .
+  }
+\end{minted}
+\captionof{listing}{Inclusion of imported file's top-level scope}
+\vspace{0.3em}
+
+In this snippet, the overridden \code{getScope} method first confirms that the current resolution request pertains to any \code{reference} context by checking
+\code{context.property} and container presence (lines 1-3), then locates the enclosing program node. Upon detecting a function-call node (line 11), it filters the program's
+function list to remove placeholder or 'ghost' entries (line 7). A local cache - persistent throughout the whole linking phase - is
+then used to retrieve or populate descriptors for these real functions (lines 11-22), encapsulating them within Langium's offered scope structure. If file-level imports are present
+(lines 8, 26-30), a helper routine leverages the global \code{IndexManager} to fetch additional symbols from imported modules, yielding a secondary stream of descriptors.
+The in-file and imported descriptors, together with any local declarations, are merged into a composite scope (lines 32-34) that is returned for code completion and reference
+linking; all other situations fall back to \code{super.getScope()} (lines 38), preserving the default resolution behavior.
+
+\begin{minted}[bgcolor=lightgray, frame=lines, breaklines, linenos]{ts}
+  override getScope(context: ReferenceInfo): Scope {
+    const container = context.container;
+    if (context.property === 'ref' && container) {
+      const program = AstUtils.getContainerOfType(container, isProgram)!;
+
+      // filter Func for body -> only real Func and not ghost Reference(=current input)
+      const programFunctions = program.functions.filter(this.isRealFunc);
+      const includeFileImports = program.fileImports && program.fileImports.length > 0;
+
+      var importedDescriptions: Stream<AstNodeDescription> = stream();
+      if (isFuncCall(container)) {
+        const descriptions = this.descriptionCache
+          .get(
+            AstUtils.getDocument(container).uri,
+            Func,
+            () =>
+              new MapScope(
+                programFunctions.map((func) =>
+                  this.astNodeDescriptionProvider.createDescription(func, func.name)
+                )
+              )
+          ).getAllElements();
+        .
+        .      
+        //check for imported functions
+        if (includeFileImports) {
+          const document = AstUtils.getDocument(container);
+          const uri = document.uri;
+          importedDescriptions = this.getImportedScope(program.fileImports, uri, Func);
+        }
+
+        return new MapScope(
+          stream(descriptions, importedDescriptions, localDeclarationsDescriptions)
+        );
+      } 
+      .
+      .
+    return super.getScope(context);
+}}
+\end{minted}
 
 \section{VS Code Extension Points}
 textmate highlighting lang-config.json
