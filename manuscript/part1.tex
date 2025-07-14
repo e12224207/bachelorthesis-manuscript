@@ -1,26 +1,25 @@
 \chapter{Introduction}
-\section{Motivation and Problem Statement}
+\section{Motivation}
 
-CPS team - waht do they need it for
-code growing user base - interconnecticty os , other qualities speaking for the usage of vs code
--
-already in possesion of Haskell Checker but
+Created by the <Faculty ()CPS> - .... formal verification, model checking, temporal logics and automata - the MiniProb DSL provides a concise notation
+for probabilistic process models\cite{guideMiniProb}. At present, MiniProb tooling is limited to a Haskell-based parser, yielding a tedious workflow: source code is written
+in a generic editor and syntax errors discovered one at a time as the parser aborts on its first failure. A modern editor extension - for example, a
+Visual Studio Code plugin providing syntax highlighting and live diagnostics - would dramatically streamline development. Such an interface lowers the barrier to entry for
+new users and also offers a familiar environment in which MiniProb programs can be authored and the further automatically converted into automata for formal verification \cite{2025modelcheckingprobabilisticoperator,POPACheck}.
+In the context of cyber-physical systems - where interconnected devices underpin critical infrastructure - and the ever-growing complexity and threat landscape of cyberspace,
+integrated verification support is essential to ensure system reliability, preempt security vulnerabilities, and uphold correctness guarantees under rigorous temporal and
+probabilistic constraints.
 
 \label{sec:scope}
 \section{Objectives and Scope}
 The main goal of the thesis was to create a \textit{Language Extension} ?NAME? for \textit{MiniProb}. Language extensions are a big part of
-VS Code’s extension ecosystem and enable the editor to utilize custom language tooling. Such extensions support the user during the implementation process
+VS Code's extension ecosystem and enable the editor to utilize custom language tooling. Such extensions support the user during the implementation process
 while writing code, by providing language assistance like syntax validation or code completion. While this implementation targets VS Code, the underlying
 logic and functionality are not limited to it - through the use of the \textit{Language Server Protocol (LSP)}, the developed tooling can be reused across
 various editors and IDEs that support the protocol. The core functionality of these extensions stems from \textit{parsers} which, against a formal language
-definition, convert written text into abstracted parts, validating the code in the process. These parts can then be used to extend the capabilities of the
-tooling to encompass referential validation, type checking, code completion, diagnostics, and other language services that enhance the development experience.
+definition, convert written text into abstracted parts \ref{sec:parser}.
 
-In order for parsers to function accordingly, they require formal language definitions or models. These definitions range from various types of grammars to
-abstract machines such as automata, which together provide the structural and syntactic rules necessary for correct interpretation and validation of source code.
-Based on these definitions, parsers are able to systematically identify the hierarchical structure of a program by recognizing patterns, token sequences, and nested
-constructs, ensuring that the code adheres to the expected form before any further processing or analysis occurs.
-In this thesis, a generative context-free grammar is used to formally describe \textit{MiniProb}, a domain-specific language (DSL) designed for authoring \textit{POMC} files.
+In this thesis, a generative context-free grammar is used to formally describe \textit{MiniProb} \ref{sec:miniprob}, a domain-specific language (DSL) designed for authoring \textit{POMC} files.
 With this grammar as a foundation, parsers enable the implementation of a fully functional language extension to aid developers writing POMC files.\\
 Ultimately, the resulting extension, titled ?NAME?, is intended to provide comprehensive language support. This includes syntactic and semantic analysis
 through syntax highlighting and validation, accurate resolution of symbol references and rudimentary code completion, as well as implemented type checking mechanisms
@@ -32,10 +31,8 @@ which ensure that semantic rules are properly enforced and errors are accurately
 or declarations are correctly resolved across different parts of a program. Together, these test categories help maintain the integrity of the parser and language service as
 the implementation evolves.
 
-Lastly, this thesis includes an evaluation of the newly implemented parser, focusing on its correctness and performance in practical usage scenarios.
-The evaluation is based on metrics collected from representative input samples, measuring factors such as parsing speed, memory usage, and error handling.
-Where relevant, comparisons are also drawn against the existing \textit{Haskell}-based parser for \textit{.pomc} files, offering a point of reference to assess
-improvements or trade-offs introduced by the new implementation.
+Finally, the complete source code is hosted on GitHub at \url{https://github.com/e12224207/miniprob}, and prebuilt \code{.vsix} packages can be downloaded from the Releases page for straightforward installation.
+This documentation serves as the definitive guide to the application developed in that repository, underpinned by the theoretical foundations of service customization and language extension principles.
 
 \chapter{Background on Languages \& Grammars}
 
@@ -102,6 +99,17 @@ to define the grammars underpinning its language-assistance features. \ref{sec:l
 \section{Language Structure and Paradigms}
 
 \subsection{Parsing Models}
+\label{sec:parser}
+
+The core functionality of language extensions stems from \textit{parsers} which, against a formal language
+definition, convert written text into abstracted parts, validating the code in the process. These parts can then be used to extend the capabilities of the
+tooling to encompass referential validation, type checking, code completion, diagnostics, and other language services that enhance the development experience.
+In order for parsers to function accordingly, they require formal language definitions or models. These definitions range from various types of grammars to
+automata such as PDAs, which provide the structural and syntactic rules necessary for correct interpretation and validation of source code.
+Based on these definitions, parsers are able to systematically identify the hierarchical structure of a program by recognizing patterns, token sequences, and nested
+constructs, ensuring that the code adheres to the expected form before any processing or analysis of the code occurs.
+With a defined grammar as a foundation, parsers enable the implementation of fully functional development tools - for example, a language extension that assists with code editing.
+\\
 
 Parsing strategies play a central role in the implementation of programming languages, determining how source code is analyzed and transformed into syntax trees.
 Two primary streams dominate the landscape: top-down and bottom-up parsing. Each parsing approach encompasses distinct implementation strategies and imposes specific
