@@ -2,6 +2,30 @@
 \usepackage[paper=a4paper,margin=2.5cm]{geometry}
 \usepackage[outputdir=out, newfloat]{minted}
 \usepackage{multicol}
+\usepackage{tikz}
+\usetikzlibrary{
+  arrows.meta,      % nicer arrow tips
+  shapes.geometric, % rectangle, diamond, etc.
+  positioning,      % easy relative placement
+  chains,           % flow‐style “chain” syntax
+  calc             % coordinate arithmetic
+}
+\tikzset{
+  process/.style = {
+    rectangle,
+    draw,
+    minimum width=3cm,
+    minimum height=1cm,
+    text centered,
+    on chain
+  },
+  arrow/.style   = {
+    -Stealth,
+    thick
+  },
+  start chain    = going below,  % default chain direction
+  node distance  = 8mm           % space between chain nodes
+}
 \usepackage{amsfonts}
 \usepackage{fontspec}
 

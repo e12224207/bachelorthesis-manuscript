@@ -92,17 +92,13 @@ Its open-source nature encourages collaboration and continuous improvement throu
   \end{itemize}
 \end{multicols}
 
-\section{High-Level Architecture Diagram}
-update diagram such that cusomt services also extends the lsp providers
+\section{High-Level Architecture Diagram \& Module Decomposition}
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{graphics/langiumArchitecture.png}
   \caption{Architecture overview of a Langium project}
   \label{fig:langium-architecture}
 \end{figure}
-
-
-\section{Module Decomposition}
 
 Langium projects can easily be created with the support of the scaffolding tool \verb|Yeoman|, producing a structured mock project including a sample language definition.
 Most of the definitions are found in the \verb|src| directory \ref{fig:langium-architecture}, encompassing functionality for the Language Server, the extension and actual language tooling.
@@ -121,7 +117,7 @@ Most of the definitions are found in the \verb|src| directory \ref{fig:langium-a
     tooltips, signature help, go-to-definition and find-references - to core language utilities that expose parsed documents as both AST and CST models, manage workspace
     state and context information (including indexing, scoping, and name resolution), synchronize the in-memory document model and perform validation checks.
     Because the parts are wired up as an injectable service, precise consumptions of the capabilities needed is possible. Moreover, Langium enables developers to swap in
-    custom implementations of services by extending the corresponding default classes, and these services have to be wired into the DI container manually \ref{sec}.
+    custom implementations of services by extending the corresponding default classes, and these services have to be wired into the DI container manually \ref{sec:customservices}.
     By default, the validation logic is located in the \code{language/} directory; subsequently, I placed additional custom services there.
     However, as these services grow in both number and complexity, it may be more appropriate to organize them in a dedicated module or folder.
 \end{description}
@@ -144,7 +140,99 @@ Notably, projects initialized with the scaffolding tool include extra files not 
 and setup scripts - scaffolded for a web demo but can be removed when solely focusing on developing the language tooling extension.
 
 \section{Data Flow and Control Flow}
-control flow of lsp from file to lsp to editor
+
+\begin{tikzpicture}[node distance=8mm and 12mm]
+  % Top row
+  \node[process]      (A) {1. Document Change};
+  \node[process,right=of A] (B) {2. Tokenization};
+  \node[process,right=of B] (C) {3. Parsing};
+  \node[process,right=of C] (D) {4. CST $\to$ AST};
+
+  % Bottom row (starts under D, reverses direction)
+  \node[process,below=of D] (E) {5. Linking \& Scoping};
+  \node[process,left=of E]  (F) {6. Validation};
+  \node[process,left=of F]  (G) {7. Diagnostics};
+  \node[process,left=of G]  (H) {8. Semantic Highlighting};
+
+   \foreach \src/\tgt in {A/B, B/C, C/D, D/E, E/F, F/G, G/H} {
+    \draw[arrow] (\src) -- (\tgt);
+  }
+\end{tikzpicture}
+\captionof{figure}{Flow chart of Langium's document process pipeline}
+\vspace{0.5em}
+
+The editor (via VS Code's LSP client) detects file opens or edits and sends an \code{onDidChangeTextDocument} notification to the server \cite{vscode-lsp}. Chevrotain's Lexer then performs lexical analysis,
+breaking the raw character stream into a sequence of tokens \cite{chevrotain-docs}, which the Chevrotain parser consumes to build a Concrete Syntax Tree (CST). Langium's AST Builder walks the CST to produce
+a higher-level Abstract Syntax Tree (AST) \cite{langium-doc-lifecycle}, after which the \code{ScopeProvider} and \code{Linker} resolve cross-references, the \code{ValidationRegistry} applies semantic rules
+to generate diagnostics, and the server finally publishes diagnostics, semantic tokens, completions, hover information, and other language-service results back to the editor via the
+Language Server Protocol.
+
+\subsection*{Language Server Protocol: Server client interaction}
+
+This illustration is a concise comprehension aid to show how the Language Server Protocol enables standardized communication between an editor (client) and a language server:
+from the initialization handshake through document events, feature requests (completion, hover, definition, references, formatting, semantic tokens), and shutdown \cite{lspFeatures}.
+By defining a common set of well-specified messages and payloads, LSP serves as a generally applicable protocol that any editor and any language server can adopt to instantly
+share rich tooling capabilities without per-language or per-IDE custom integrations.
+
+\begin{center}
+  \begin{tikzpicture}[
+  lifeline/.style={rectangle, draw, minimum width=3cm, text centered},
+  message/.style={-{Stealth}, thick},
+  msglabel/.style={font=\small, text width=5cm, align=center}
+]
+  % Lifeline heads
+  \node[lifeline] (C) {Client};
+  \node[lifeline,right=8cm of C] (S) {Server};
+
+  % Lifelines
+  \draw[dashed] (C.south) -- ++(0,-21*8mm-5mm);
+  \draw[dashed] (S.south) -- ++(0,-21*8mm-5mm);
+
+  \node at
+    ($ (C.north)!.5!(S.north) + (0,5mm) $)
+    {\texttt{(JSON-RPC)}};
+
+ \foreach \i/\txt in {
+    1/initialize,
+    3/initialized (notification),
+    4/textDocument\slash didOpen,
+    5/textDocument\slash didChange,
+    6/textDocument\slash completion,
+    8/textDocument\slash hover,
+    10/textDocument\slash definition,
+    12/textDocument\slash references,
+    14/textDocument\slash formatting,
+    16/textDocument\slash semanticTokens,
+    18/textDocument\slash didSave,
+    19/textDocument\slash didClose,
+    20/shutdown,
+    21/exit
+  }{
+    \draw[message]
+      ($ (C.south) + (0,-\i*8mm) $)
+      -- 
+      ($ (S.south) + (0,-\i*8mm) $)
+      node[midway, above, msglabel] {\txt};
+  }
+
+  % Server→Client messages (labels below)
+  \foreach \i/\txt in {
+    2/initialize response,
+    7/completion items,
+    9/hover info,
+    11/definition locations,
+    13/reference locations,
+    15/edits,
+    17/token data
+  }{
+    \draw[message]
+      ($ (S.south) + (0,-\i*8mm) $)
+      -- 
+      ($ (C.south) + (0,-\i*8mm) $)
+      node[midway, above, msglabel] {\txt};
+  }
+\end{tikzpicture}
+\end{center}
 
 \chapter{Implementation Details}
 \label{sec:langium-grammar}
@@ -164,10 +252,10 @@ The code excerpt shown here defines 'MiniProb' as the grammar name and sets the 
 referring to each MiniProb-parsed document as a program. Lines of interest include line 8 - showing that every MiniProb program consists of some global declarations
 followed by at least on function - and line 4, which allows for file import of other MiniProb programs at the beginning of the document.
 
-The \code{FileImport} rule emulates the C preprocessor's "\#include" directive by requiring a literal match of the \texttt{\#include} keyword followed by a
+The \code{FileImport} rule emulates the C preprocessor's "\#include" directive by requiring a literal match of the \code{#include} keyword followed by a
 file name token (terminal \code{STRING}). Generally during parsing, each line is evaluated either against these fixed string keywords or against any matching terminals (order of match).
 As the file names have to be retrievable once it is time to compute the scope \ref{sec:customservices}, they are made accessible through the AST
-, with each FileImport-node containing a \texttt{file} property that stores the corresponding value.
+, with each FileImport-node containing a \code{file} property that stores the corresponding value.
 
 This declaring of \textit{assignments} (here also referred to as fields) is a central feature of the Langium DSL, which binds other grammar rules or literal strings for subsequent retrieval and use in AST-based computations.
 Because all production rules extend upon the \code{AstNode} base class, the assigned fields share a common origin allowing polymorphic access and seamless traversal and processing of every rule-node;
