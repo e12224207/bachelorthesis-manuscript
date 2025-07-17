@@ -111,7 +111,20 @@
 
 \begin{abstract}
   % Your abstract text here.
-  all slash code coantined text hs to be revisted due to the detokenize
+  ??all slash code coantined text hs to be revisted due to the detokenize\\
+
+\noindent Cyber-Physical Systems demand rigorous, automated verification to ensure safety and correctness under uncertainty. This thesis presents the design and
+implementation of a Visual Studio Code language extension for \textbf{MiniProb} (\ref{sec:miniprob}), a domain-specific probabilistic programming language tailored to formal model checking of
+recursive, stochastic processes. Building on the Langium framework - written in TypeScript and running on Node.js - and the Language Server Protocol, a formal EBNF grammar for
+MiniProb was defined and used within Langium to generate a parser that produces both Concrete Syntax Trees (CSTs) and typed Abstract Syntax Trees (ASTs).
+Custom services - including semantic validation, type checking, cross-reference resolution, and some code completion features - were developed within Langium.
+
+\noindent  The extension, packaged as a .vsix and available on GitHub, streamlines MiniProb development by lowering the barrier to entry for probabilistic model
+authors and facilitating direct translation of MiniProb programs into probabilistic operator precedence automata for formal verification.
+
+\noindent This work demonstrates that modern editor tooling, when coupled with robust language engineering frameworks, can significantly enhance the usability and
+accessibility of specialized DSLs in safety-critical CPS contexts.
+
 \end{abstract}
 
 \tableofcontents
@@ -129,6 +142,8 @@
   \include{part2}
 \end{refsection}
 
+conlsuio: mention no dode comülpeteion for structures only refs, not optimal and how it would be implemetned
+
 %=== References ===%
 \cleardoublepage
 \printbibliography[heading=subbibliography,title={Foundations},section=1]
@@ -137,6 +152,46 @@
 %\printbibliography
 
 \appendix
+
+\chapter{Abbreviations}
+\begin{description}
+  \item[API] Application Programming Interface
+  \item[AST] Abstract Syntax Tree
+  \item[BNF] Backus-Naur Form
+  \item[BOOL] Boolean
+  \item[CAV] Computer-Aided Verification
+  \item[CFG] Context-Free Grammar
+  \item[CLI] Command-Line Interface
+  \item[CPS] Cyber-Physical System
+  \item[CS] Computer Science
+  \item[CST] Concrete Syntax Tree
+  \item[DFA] Deterministic Finite Automaton
+  \item[DI] Dependency Injection
+  \item[DSL] Domain-Specific Language
+  \item[EBNF] Extended Backus-Naur Form
+  \item[ESM] ECMAScript Module
+  \item[JSON-RPC] JavaScript Object Notation -- Remote Procedure Call
+  \item[LL] Left-to-right, Leftmost derivation
+  \item[LR] Left-to-right, Rightmost derivation
+  \item[LSP] Language Server Protocol
+  \item[LTL] Linear Temporal Logic
+  \item[MCMC] Markov Chain Monte Carlo
+  \item[OPA] Operator Precedence Automaton
+  \item[OPM] Operator Precedence Matrix
+  \item[PDA] Pushdown Automaton
+  \item[PEG] Parsing Expression Grammar
+  \item[POTL] Procedence Operator Temporal Logic
+  \item[PPL] Probabilistic Programming Language
+  \item[SMC] Statistical Model Checking
+  \item[SMT] Satisfiability Modulo Theories
+  \item[URI] Uniform Resource Identifier
+  \item[VI] Variational Inference
+  \item[VS] Visual Studio
+  \item[VSCE] Visual Studio Code Extension
+  \item[WS] Web Services
+  \item[XML] eXtensible Markup Language
+\end{description}
+
 
 \begin{bnf}
   $prog$ : \textsf{Program} ::=
@@ -373,10 +428,7 @@
 \captionof{listing}{Backus-Naur form of MiniProb grammar}
 \label{list:miniprob-bnf}
 
-% Full Miniprob grammar here.
-
 \chapter{Expanded Code Listings}
-% Additional code excerpts.
 \inputminted[linenos, breaklines]{yaml}{samples/mini-prob.langium}
 \captionof{listing}{Langium grammar definition of MiniProb (LL(2) parsable)}
 \label{list:langium-grammar}
