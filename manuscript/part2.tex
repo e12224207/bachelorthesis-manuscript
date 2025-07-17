@@ -501,7 +501,7 @@ propagated message is displayed. Otherwise, the validator verifies that the reso
 \begin{description}
 
   \item[\texttt{checkArrayAccess (Lval)}]
-    Infers the index expression’s type; reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, or if it is not an integer.
+    Infers the index expression's type; reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, or if it is not an integer.
 
   \item[\texttt{checkAssignments (Assignment)}]
     Infers both left- and right-hand types (expression or distribution), reports on conflicting inconsistencies\textsuperscript{*} detected during type inference, and finally verifies that the right-hand type is compatible with the left.
@@ -929,5 +929,35 @@ linking; all other situations fall back to \code{super.getScope()} (lines 38), p
 
 \section{VS Code Extension Points}
 textmate highlighting lang-config.json
+
+??maybe ref from the firt mention of the extension (structure)
+
+The changes made to the files associated with the extension's build are minimal yet essential. The extension's entry point remains \code{main.ts} in the
+\code{extension/} directory, while \code{tmLanguage.json} serves as the primary configuration for syntax highlighting, specifying the label and groups used to color tokens.
+During the build pipeline (invoked by \code{npm run ...}), a small custom script reads \code{tmLanguage.json}, injects the necessary snippets (\ref{list:customsyntax})
+that aren't included by default, and writes the updated file back so that our custom tokens are recognized and styled correctly.
+
+\begin{minted}[bgcolor=lightgray, frame=lines, breaklines, linenos]{json}
+  {
+    "name": "storage.type.int-prefix.mini-prob",
+    "match": "\\b[su][1-9][0-9]*\\b"
+  },
+  {
+    "name": "keyword.control.boolValue.mini-prob",
+    "match": "\\b(true|false)\\b"
+  }
+\end{minted}
+\captionof{listing}{Patched syntax configurations}
+\label{list:customsyntax}
+\vspace{0.5em}
+
+Another critical component is \code{esbuild.js}, which handles transpiling TypeScript into JavaScript, bundling and minifying dependencies, and resolving imports so
+that both the "extension main" and "language main" entry points become single \code{.js} modules. VSCE, the CLI used to package \code{.vsix} files, requires CommonJS
+modules, but the repository is set to ESM (\code{"type": "module"}), so we updated the \code{package.json} entries in \code{out/extension/main.js} and
+\code{out/language/main.js} to force a CommonJS output. This adjustment not only silenced VSCE's bundling warnings but - by bundling the files through
+\code{esbuild.js}-reduced the package footprint from about 27MB of loose output down to roughly 1MB in the final \code{.vsix}.
+
+
+
 \section{Testing}
 \section{Parsing Speed}
