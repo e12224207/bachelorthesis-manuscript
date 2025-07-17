@@ -960,4 +960,13 @@ modules, but the repository is set to ESM (\code{"type": "module"}), so we updat
 
 
 \section{Testing}
+
+The Langium project's test suite is initialized via Vitest in the scaffolding-generated environment and is organized into three distinct categories: parsing, linking,
+and validation. Parsing tests verify that all grammar rules and their associated assignments are correctly recognized and transformed into the appropriate CST and AST
+node types. Linking tests focus on scope management and reference resolution, ensuring that identifiers and imports are resolved accurately; notably,
+import resolution tests employ a virtual file system to simulate file paths and confirm that cross-file references function as intended. Validation tests then examine
+semantic constraints and type correctness, asserting that the constructed AST adheres to the language's typing and business-logic rules. Across all categories,
+the tests interact directly with CST and AST nodes, making precise assertions that guarantee the language implementation remains consistent and reliable.
+
+
 \section{Parsing Speed}
