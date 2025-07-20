@@ -1,17 +1,65 @@
+% Document class and page setup
 \documentclass[11pt]{report}
 \usepackage[paper=a4paper,margin=2.5cm]{geometry}
+
+%=== Syntax highlighting ===
 \usepackage[outputdir=out, newfloat]{minted}
 \setminted{
   fontsize=\small
 }
+
+%=== Fonts ===
+\usepackage{fontspec}
+% Point fontspec at your local fonts folder:
+\setmainfont{EBGaramon}[
+  Path      = font/,       % relative to main.tex
+  Extension = .ttf,
+  UprightFont    = *d12-Regular,
+  BoldFont       = *d08-Regular,
+  ItalicFont     = *d12-Italic,
+  BoldItalicFont = *d08-Italic
+]
+
+%=== Mathematics ===
+\usepackage{amsfonts}
+
+%=== Layout and typography ===
+\usepackage{caption}
 \usepackage{multicol}
+\usepackage{microtype}
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{}{0pt}{}
+\titlespacing*{\chapter}{0pt}{1.5em}{1em}
+% Prevent chapters from starting on a new page
+\usepackage{etoolbox}
+\makeatletter
+  % In the standard report class \chapter does:
+  %    \if@openright \cleardoublepage \else \clearpage \fi
+  % so we remove that entire conditional.
+  \patchcmd{\chapter}
+    {\if@openright\cleardoublepage\else\clearpage\fi}
+    {}
+    {}{}
+
+  % Starred chapters (\chapter*) invoke \@schapter and do a \clearpage
+  \patchcmd{\@schapter}
+    {\clearpage}
+    {}
+    {}{}
+\makeatother
+%=== Graphics and diagrams ===
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{xcolor}
+\definecolor{lightgray}{gray}{0.97}
+
 \usepackage{tikz}
 \usetikzlibrary{
   arrows.meta,      % nicer arrow tips
   shapes.geometric, % rectangle, diamond, etc.
   positioning,      % easy relative placement
   chains,           % flow‐style “chain” syntax
-  calc             % coordinate arithmetic
+  calc              % coordinate arithmetic
 }
 \tikzset{
   process/.style = {
@@ -27,33 +75,16 @@
     thick
   },
   start chain    = going below,  % default chain direction
-  node distance  = 8mm           % space between chain nodes
+  node distance  = 8mm            % space between chain nodes
 }
-\usepackage{amsfonts}
-\usepackage{fontspec}
-
-% Point fontspec at your local fonts folder:
-\setmainfont{EBGaramon}[
-  Path      = font/,       % relative to main.tex
-  Extension = .ttf,
-  UprightFont    = *d12-Regular,   % MyFont-Regular.ttf
-  BoldFont       = *d08-Regular,       % MyFont-Bold.ttf
-  ItalicFont     = *d12-Italic,
-  BoldItalicFont = *d08-Italic
-]
 
 \usepackage{forest}
-\usepackage{microtype}
-\usepackage{graphicx}
-\usepackage{wrapfig}
+
+%=== Hyperlinks ===
 \usepackage[colorlinks,linkcolor=blue,urlcolor=cyan]{hyperref}
-\usepackage{xcolor}
-\usepackage{caption}
-\usepackage{titlesec}
-\titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{}{0pt}{}
-\titlespacing*{\chapter}{0pt}{1.5em}{1em}
+
 %=== Metadata ===
-\newcommand{\thesistitle}{Your Thesis Title Here}
+\newcommand{\thesistitle}{VS Code Language Extension - MiniProb}
 \newcommand{\authorname}{Rafael Tanzer}
 \newcommand{\supervisor}{Michele Chiaria, Simone , Francesco Pontigia and Ezzio Bartocci}
 \newcommand{\institution}{TU Vienna}
@@ -61,53 +92,131 @@
 \newcommand{\logoimage}{graphics/logo.png} % Path to your logo image
 \newcommand{\submissionmonth}{May}
 \newcommand{\submissionyear}{2025}
-%================
+\newcommand{\submissionday}{24}
 
+%=== File Metadata ======
+\begin{filecontents*}[overwrite]{\jobname.xmpdata}
+\Author{\authorname}
+\Title{\thesistitle}
+\Language{de-AT}
+\Keywords{a\sep list\sep of\sep keywords}
+\Publisher{TU Wien}
+\Subject{Thesis}
+\end{filecontents*}
+
+%=== Bibliography ===
 \usepackage[backend=biber, style=numeric]{biblatex}
 \addbibresource{bibliography/theory.bib}
 \addbibresource{bibliography/implementation.bib}
+
+%=== Custom BNF and code styling ===
 \usepackage{./simplebnf}
 \def\code#1{\texttt{\detokenize{#1}}}
 
-\definecolor{lightgray}{gray}{0.97}
-
 \begin{document}
 
+%—— German Title Page ——
 \begin{titlepage}
-  \centering
-  \vspace*{1cm}
-
-  % University logo
+  % Top‑left TU Wien logo
+  \noindent
   \includegraphics[width=0.25\textwidth]{graphics/tuWienLogo.png}
-  \\[1cm]
 
-  % Thesis title
-  {\Huge \thesistitle\\[1.5cm]}
+  % push down to center the main block
+  \vspace*{\fill}
 
-  % Project logo under title, smaller size
-  \includegraphics[width=0.15\textwidth]{\logoimage}\\[1cm]
+  % Centered metadata block
+  \begin{center}
+    {\Huge \thesistitle}\\[1cm]
+    \includegraphics[width=0.15\textwidth]{\logoimage}\\[1cm]
+    {\LARGE BACHELORARBEIT}\\[0.5cm]
+    zur Erlangung des akademischen Grades\\[0.5cm]
+    {\Large Bachelor of Science}\\[0.5cm]
+    im Rahmen des Studiums\\[0.5cm]
+    \textit{Bachelor programme Software \& Information Engineering}\\[1cm]
+    eingereicht von\\[0.5cm]
+    {\Large \authorname}\\[0.5cm]
+    Matrikelnummer 12224207
+  \end{center}
 
-  % Author\maketitle
-  {\Large \authorname\\[0.5cm]}
-
-  % Department and institution
-  {\large \department\\
-  \institution\\[1.5cm]}
-
-  % Supervisor
-  {\large Supervisor: \supervisor\\[2cm]}
-
-  % Submission date
-  {\large \submissionmonth~\submissionyear\\}
-
-  \vfill
-
-  % Bottom of the page
+  % Left‑aligned faculty / advisors block
+  \vspace*{1cm}
+  \noindent
+  an der Fakultät für Informatik\\
+  der Technischen Universität Wien\\
+  
   \vspace*{0.5cm}
-  {\small This thesis is submitted in partial fulfillment of the requirements for the degree of \textit{Bachelor of Science}.}
+  \noindent
+  \begin{tabular}{@{}r @{\quad} l@{}}
+    Betreuung: & Ezzio Bartocci\\
+    Mitwirkung: & Michele Chiari\\
+              & Francesco Pontiggia
+  \end{tabular}
 
+  % push rest down to bottom
+  \vspace*{\fill}
+
+  \noindent
+  \makebox[\textwidth]{%
+    {\small Vienna, \submissionday~\submissionmonth~\submissionyear}%
+    \hfill
+    \begin{tabular}[t]{@{\hspace{2cm}}c@{\hspace{0.2cm}}c@{}}
+      \rule{5cm}{0.4pt} & \rule{5cm}{0.4pt} \\[-0.3ex]
+      {\small \authorname} & {\small Ezzio Bartocci}
+    \end{tabular}%
+  }
 \end{titlepage}
 
+
+%—— English Title Page ——
+\begin{titlepage}
+  % Top‑left TU Wien logo
+  \noindent
+  \includegraphics[width=0.25\textwidth]{graphics/tuWienLogo.png}
+
+  % push down to center the main block
+  \vspace*{\fill}
+
+  % Centered metadata block
+  \begin{center}
+    {\Huge \thesistitle}\\[1cm]
+    \includegraphics[width=0.15\textwidth]{\logoimage}\\[1cm]
+    {\LARGE BACHELOR'S THESIS}\\[0.5cm]
+    for the degree of\\[0.5cm]
+    {\Large Bachelor of Science}\\[0.5cm]
+    within the study programme of\\[0.5cm]
+    \textit{Bachelor programme Software \& Information Engineering}\\[1cm]
+    submitted by\\[0.5cm]
+    {\Large \authorname}\\[0.5cm]
+    Student ID 12224207
+  \end{center}
+
+  % Left‑aligned faculty / advisors block
+  \vspace*{1cm}
+  \noindent
+  to the Faculty of Informatics\\
+  at the TU Wien\\
+
+  \vspace*{0.5cm}
+  \noindent
+  \begin{tabular}{@{}r @{\quad} l@{}}
+    Advisor:    & Ezio Bartocci\\
+    Assistance: & Michele Chiari\\
+              & Francesco Pontiggia
+  \end{tabular}
+
+  % push rest down to bottom
+  \vspace*{\fill}
+
+  \noindent
+  \makebox[\textwidth]{%
+    {\small Vienna, \submissionday~\submissionmonth~\submissionyear}%
+    \hfill
+    \begin{tabular}[t]{@{\hspace{2cm}}c@{\hspace{0.2cm}}c@{}}
+      \rule{5cm}{0.4pt} & \rule{5cm}{0.4pt} \\[-0.3ex]
+      {\small \authorname} & {\small Ezzio Bartocci}
+    \end{tabular}%
+  }
+\end{titlepage}
 
 \begin{abstract}
   % Your abstract text here.

@@ -93,7 +93,7 @@ similar to \textit{Regular Expressions} allowing the use of optional or repeatab
 and the use of comments. Such extensions make grammars more compact and easier to read without changing the fundamental class of languages they describe.
 Multiple distinct instances of EBNF's have been development, all with minor syntactic differences, yet there really is no on-for-all EBNF used in practice, although
 a standardized ISO/IEC 14977 version exists. \cite{jinks2004bnf,jinks2004ebnfvariants}\\
-Within the scope of my thesis, \textit{?NAME?}, Extended Backus-Naur Form (EBNF) is particularly significant, since Langium employs its own custom EBNF dialect ?makeRefTo?
+Within the scope of this thesis, the Extended Backus-Naur Form (EBNF) is particularly significant, since Langium employs its own custom EBNF dialect \ref{sec:langium-grammar}
 to define the grammars underpinning its language-assistance features. \ref{sec:langium-grammar}
 
 \section{Language Structure and Paradigms}
@@ -127,9 +127,6 @@ As such, grammars used in practice are often simplified or transformed to be com
 
 Understanding these parsing models is crucial when designing or analyzing a programming language, especially when employing parser generators such as
 ANTLR and Chevrotain (LL) or Yacc/Bison (LR), which impose specific requirements on grammar structure.
-
-\subsubsection*{Lexers}
-todo
 
 \subsection{Abstract vs. Concrete Syntax}
 
@@ -591,7 +588,7 @@ Boolean literals are written plainly as \code{true} and \code{false}.
 \\
 
 Lastly, MiniProb also includes a few more constructs which are omitted here as, they are currently not covered by the language extension.
-These constructs include \code{probabilistic query: ...} defining the type of query, \code{formulas = ...}: specified by POTL formalisms and the definition of \emph{modules} \cite{guideMiniProb}.
+These constructs include \code{probabilistic query: ...} defining the type of query, \code{formulas = ...} - specified by POTL formalisms - and the definition of \emph{modules} \cite{guideMiniProb}.
 
 \section{Semantics and Example Models}
 
