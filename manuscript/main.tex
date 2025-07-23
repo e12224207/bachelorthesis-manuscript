@@ -88,7 +88,7 @@
 \newcommand{\authorname}{Rafael Tanzer}
 \newcommand{\supervisor}{Michele Chiaria, Simone , Francesco Pontigia and Ezzio Bartocci}
 \newcommand{\institution}{TU Vienna}
-\newcommand{\department}{Cyber-Physical-Systems, ..., ...}
+\newcommand{\department}{Cyber-Physical Systems$_{E191-01}$}
 \newcommand{\logoimage}{graphics/logo.png} % Path to your logo image
 \newcommand{\submissionmonth}{May}
 \newcommand{\submissionyear}{2025}
@@ -119,7 +119,7 @@
 \begin{titlepage}
   % Top‑left TU Wien logo
   \noindent
-  \includegraphics[width=0.25\textwidth]{graphics/tuWienLogo.png}
+  \includegraphics[width=0.3\textwidth]{graphics/tuWienLogo.png}
 
   % push down to center the main block
   \vspace*{\fill}
@@ -141,7 +141,7 @@
   % Left‑aligned faculty / advisors block
   \vspace*{1cm}
   \noindent
-  an der Fakultät für Informatik\\
+  an der Fakultät für Informatik: \department\\
   der Technischen Universität Wien\\
   
   \vspace*{0.5cm}
@@ -157,7 +157,7 @@
 
   \noindent
   \makebox[\textwidth]{%
-    {\small Vienna, \submissionday~\submissionmonth~\submissionyear}%
+    {\small Wien, \submissionday~\submissionmonth~\submissionyear}%
     \hfill
     \begin{tabular}[t]{@{\hspace{2cm}}c@{\hspace{0.2cm}}c@{}}
       \rule{5cm}{0.4pt} & \rule{5cm}{0.4pt} \\[-0.3ex]
@@ -171,7 +171,7 @@
 \begin{titlepage}
   % Top‑left TU Wien logo
   \noindent
-  \includegraphics[width=0.25\textwidth]{graphics/tuWienLogo.png}
+  \includegraphics[width=0.3\textwidth]{graphics/tuWienLogo.png}
 
   % push down to center the main block
   \vspace*{\fill}
@@ -193,7 +193,7 @@
   % Left‑aligned faculty / advisors block
   \vspace*{1cm}
   \noindent
-  to the Faculty of Informatics\\
+  to the Faculty of Informatics: \department\\
   at the TU Wien\\
 
   \vspace*{0.5cm}
@@ -218,26 +218,87 @@
   }
 \end{titlepage}
 
-\begin{abstract}
-  % Your abstract text here.
-  ??all slash code coantined text hs to be revisted due to the detokenize\\
+%–– Eidesstattliche Erkärung ––%
+\thispagestyle{empty}
+\begin{flushright}
+  {\LARGE\bfseries Erklärung zur Verfassung der Arbeit\par}
+\end{flushright}
 
-\noindent Cyber-Physical Systems demand rigorous, automated verification to ensure safety and correctness under uncertainty. This thesis presents the design and
-implementation of a Visual Studio Code language extension for \textbf{MiniProb} (\ref{sec:miniprob}), a domain-specific probabilistic programming language tailored to formal model checking of
-recursive, stochastic processes. Building on the Langium framework - written in TypeScript and running on Node.js - and the Language Server Protocol, a formal EBNF grammar for
-MiniProb was defined and used within Langium to generate a parser that produces both Concrete Syntax Trees (CSTs) and typed Abstract Syntax Trees (ASTs).
-Custom services - including semantic validation, type checking, cross-reference resolution, and some code completion features - were developed within Langium.
+\vspace{4cm}
+\noindent
+{\large \authorname}
 
-\noindent  The extension, packaged as a .vsix and available on GitHub, streamlines MiniProb development by lowering the barrier to entry for probabilistic model
-authors and facilitating direct translation of MiniProb programs into probabilistic operator precedence automata for formal verification.
+\vspace{2cm}
 
-\noindent This work demonstrates that modern editor tooling, when coupled with robust language engineering frameworks, can significantly enhance the usability and
-accessibility of specialized DSLs in safety-critical CPS contexts.
+% ––– Main declaration text –––
+\noindent
+Hiermit erkläre ich, dass ich diese Arbeit selbständig verfasst habe, dass ich die verwendeten Quellen und Hilfsmittel vollständig angegeben habe und dass ich die Stellen der Arbeit - einschließlich Tabellen, Karten und Abbildungen -, die anderen Werken oder dem Internet im Wortlaut oder dem Sinn nach entnommen sind, auf jeden Fall unter Angabe der Quelle als Entlehnung kenntlich gemacht habe.
 
-\end{abstract}
+\medskip
 
-\tableofcontents
+\noindent
+Ich erkläre weiters, dass ich mich generativer KI-Tools lediglich als Hilfsmittel bedient habe und in der vorliegenden Arbeit mein gestalterischer Einfluss überwiegt. In der "Anerkennung"(Acknowledgements) habe ich alle generativen KI-Tools gelistet, die verwendet wurden, und angegeben, wo und wie sie verwendet wurden. Für Textpassagen, die ohne substantielle Änderungen übernommen wurden, haben ich jeweils die von mir formulierten Eingaben (Prompts) und die verwendete IT-Anwendung mit ihrem Produktnamen und Versionsnummer/Datum angegeben.
 
+\vfill
+
+% ––– Footer: date left, signature right –––
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+  Wien, \submissionday.~\submissionmonth~\submissionyear
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+  \hrulefill\\
+  \centering \authorname
+\end{minipage}
+
+\pagenumbering{roman}
+\cleardoublepage
+% — Right-aligned, large title —
+\phantomsection
+\begin{flushright}
+  {\Huge\bfseries Abstract\par}
+\end{flushright}
+\addcontentsline{toc}{chapter}{Abstract}
+% Push the block down
+\vspace*{3cm}
+
+% Abstract text
+\noindent
+Cyber-Physical Systems demand rigorous, automated verification to ensure safety and correctness under uncertainty. This thesis presents the design and implementation of
+a Visual Studio Code language extension for \textbf{MiniProb} (\ref{sec:miniprob}), a domain-specific probabilistic programming language tailored to formal model
+checking of recursive, stochastic processes. Building on the Langium framework - written in TypeScript and running on Node.js - and the Language Server Protocol,
+a formal EBNF grammar for MiniProb was defined and used within Langium to generate a parser that produces both Concrete Syntax Trees (CSTs) and
+typed Abstract Syntax Trees (ASTs). Custom services - including semantic validation, type checking, cross-reference resolution, and some code completion features -
+were developed within Langium.
+
+\vspace{1ex}
+
+\noindent
+The extension, packaged as a .vsix and available on \hyperlink{https://github.com/e12224207/miniprob}{GitHub}, streamlines the development of MiniProb programs 
+by lowering the barrier to entry for probabilistic model authors and facilitating direct translation of MiniProb programs into probabilistic operator precedence
+automata for formal verification.
+
+\vspace{1ex}
+
+\noindent
+This work demonstrates that modern editor tooling, when coupled with robust language engineering frameworks, can significantly enhance the usability and accessibility
+of specialized DSLs in safety-critical CPS contexts.
+
+\clearpage
+
+\phantomsection
+\begin{flushright}
+  {\Huge\bfseries \contentsname\par}
+\end{flushright}
+\addcontentsline{toc}{chapter}{Contents}
+\begingroup
+  \renewcommand{\contentsname}{\vspace{-1cm}}%
+  \tableofcontents
+\endgroup
+
+\cleardoublepage
+\pagenumbering{arabic}
 
 %=== Part I - Foundations ===%
 \begin{refsection}
@@ -251,8 +312,6 @@ accessibility of specialized DSLs in safety-critical CPS contexts.
   \include{part2}
 \end{refsection}
 
-conlsuio: mention no dode comülpeteion for structures only refs, not optimal and how it would be implemetned
-
 %=== References ===%
 \cleardoublepage
 \printbibliography[heading=subbibliography,title={Foundations},section=1]
@@ -261,6 +320,19 @@ conlsuio: mention no dode comülpeteion for structures only refs, not optimal an
 %\printbibliography
 
 \appendix
+
+\clearpage
+\chapter{Acknowledgements}
+
+\noindent I would like to thank my supervisory team - Prof.\ First Supervisor, Dr.\ Second Supervisor, and Dr.\ Third Supervisor - for generously sharing their expertise throughout this project.
+Their patient guidance on implementation details, contextual foundations, and domain-specific nuances of the application was invaluable. Whenever I encountered a technical
+hurdle or needed deeper insight into the domain, they were always ready with thoughtful advice and resources.
+\vspace{1ex}
+\noindent I would also like to acknowledge the use of ChatGPT 4o-mini-high during the preparation of this thesis. I used it to enhance my writing by correcting grammar
+and spelling errors, as well as improve the overall tone and wording.
+Furthermore, the AI-tools was used as a consultation on common topics and for creating the Biblatex citations.
+All final texts and substantive content, however, reflect my own efforts and have been critically reviewed by me.
+\clearpage
 
 \chapter{Abbreviations}
 \begin{description}
@@ -301,7 +373,7 @@ conlsuio: mention no dode comülpeteion for structures only refs, not optimal an
   \item[XML] eXtensible Markup Language
 \end{description}
 
-
+\chapter{BNF of MiniProb}
 \begin{bnf}
   $prog$ : \textsf{Program} ::=
   | $decl\_list\; func\; func\_list$
@@ -488,7 +560,7 @@ conlsuio: mention no dode comülpeteion for structures only refs, not optimal an
 \pagebreak
 
 \begin{bnf}
-  $identifier$ ::=
+  $identifier$ : \textsf{Name} ::=
   | $letter\;ident\_tail$
   ;;
   $ident\_tail$ ::=
@@ -514,7 +586,7 @@ conlsuio: mention no dode comülpeteion for structures only refs, not optimal an
   | $letter$
   | $digit$
   ;;
-  $type$ ::=
+  $type$ : \textsf{Types} ::=
   | \code{bool}
   | $int\_spec$
   | $int\_spec\;\left[\;int\_literal\;\right]$
@@ -523,21 +595,21 @@ conlsuio: mention no dode comülpeteion for structures only refs, not optimal an
   | $digit\;digit\_seq$
   | $digit$
   ;;
-  $int\_spec$ ::=
+  $int\_spec$ : \textsf{Integer} ::=
   | \code{u} $digit\_seq$
   | \code{s} $digit\_seq$
   ;;
   $int\_literal$ ::=
   | $digit\_seq\;int\_spec$
   ;;
-  $bool$ ::=
+  $bool$ : \textsf{Boolean} ::=
   | \code{true}
   | \code{false}
 \end{bnf}
 \captionof{listing}{Backus-Naur form of MiniProb grammar}
 \label{list:miniprob-bnf}
 
-\chapter{Expanded Code Listings}
+\chapter{section}{Expanded Code Listings}
 \inputminted[linenos, breaklines]{yaml}{samples/mini-prob.langium}
 \captionof{listing}{Langium grammar definition of MiniProb (LL(2) parsable)}
 \label{list:langium-grammar}
