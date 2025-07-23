@@ -335,7 +335,8 @@ All final texts and substantive content, however, reflect my own efforts and hav
 \clearpage
 
 \chapter{Abbreviations}
-\begin{description}
+\begin{multicols}{2}
+  \begin{description}
   \item[API] Application Programming Interface
   \item[AST] Abstract Syntax Tree
   \item[BNF] Backus-Naur Form
@@ -372,6 +373,7 @@ All final texts and substantive content, however, reflect my own efforts and hav
   \item[WS] Web Services
   \item[XML] eXtensible Markup Language
 \end{description}
+\end{multicols}
 
 \chapter{BNF of MiniProb}
 \begin{bnf}
@@ -609,7 +611,7 @@ All final texts and substantive content, however, reflect my own efforts and hav
 \captionof{listing}{Backus-Naur form of MiniProb grammar}
 \label{list:miniprob-bnf}
 
-\chapter{section}{Expanded Code Listings}
+\chapter{Expanded Code Listings}
 \inputminted[linenos, breaklines]{yaml}{samples/mini-prob.langium}
 \captionof{listing}{Langium grammar definition of MiniProb (LL(2) parsable)}
 \label{list:langium-grammar}
