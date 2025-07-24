@@ -1,6 +1,6 @@
 \chapter{Requirements and Technological Context}
 
-As discussed in in the introduction \ref{sec:scope}, the main aim is the development of a VS Code Language extension that operates on par with
+As discussed in in the introduction \ref{sec:scope}, the main aim is the development of a VS Code Language extension that operates similarly to
 well-established tooling for other programming languages. The following requirements define the expected capabilities and characteristics the extension must demonstrate.
 
 \begin{multicols}{2}
@@ -20,18 +20,19 @@ well-established tooling for other programming languages. The following requirem
   \begin{enumerate}
     \item The extension must respond to user edits with syntax and semantic feedback within 100-250ms for files of average size.
     \item The extension must provide a user-friendly experience that is consistent with other popular VS Code extensions.
-    \item The extension must be structured and commented in a way that allows future developers to understand and extend its functionality easily.
-    \item The extension must be compatible with the latest version of Visual Studio Code at the time of its release and be developed using Langium, with consideration for future maintenance and version support.
+    \item The extension's code must be structured, commented and documented in a way that allows future developers to understand and extend its functionality easily.
+    \item The extension must be compatible with the latest version of Visual Studio Code at the time of its release, with consideration for future maintenance and version support.
     \item The extension must be able to handle files of immense size (around 10000 lines) of code within the bounds of 1 second.
     \item The extension must be delivered with clear and comprehensive documentation, including installation, usage, and extension of its features.
   \end{enumerate}
 \end{multicols}
 
-\section{Alternative Technologies}
+\section{Familiar Technologies}
 
 This extension is implemented using \textbf{Langium}, which itself builds upon the standardized \textbf{Language Server Protocol (LSP)} \cite{LSP}, yet
 there are several other technologies and approaches available for creating Visual Studio Code language extensions. At its core, the LSP allows tooling for programming
-languages to be developed in a modular, editor-independent manner, making it possible to implement a language server in any language that can communicate via JSON-RPC.
+languages to be developed in a modular, editor-independent manner, making it possible to implement a language server, communicating the
+language specific support via JSON-RPC.
 
 One common approach is to implement a language server using general-purpose programming languages (e.g., TypeScript, Java, or Rust) combined with parser generation libraries.
 Technologies such as \textbf{Jison}~\cite{Jison}, \textbf{Nearley}~\cite{Nearley}, and \textbf{PEG.js}~\cite{PEGjs} offer a range of options for specifying a language's grammar
@@ -42,9 +43,11 @@ basic parsing. ANTLR provides a mature and highly optimized lexer and parser gen
 an end-to-end solution for language engineering - including built-in support for scoping, indexing, and validation - making it especially suited for creating fully
 featured language servers.
 
-For basic syntax highlighting and lexical analysis, \textbf{TextMate}-style grammars~\cite{TextMate} can be used, offering a lightweight approach when deep semantic understanding is not required.
 Meanwhile, incremental parsing frameworks such as \textbf{Tree-sitter}~\cite{Treesitter} have gained popularity for their ability to provide high-performance syntax parsing and error recovery,
 making them ideal for tooling that operates on very large files.
+
+For basic syntax highlighting and lexical differentiation, \textbf{TextMate}-style grammars \cite{TextMate} can be used - for editors supporting it, offering a lightweight approach.
+An alternative are Monaco-based editors, that employ \textbf{Monarch} typescript files to define the token coloring, in contrast to TextMate which uses JSON files.
 
 \chapter{Langium}
 
@@ -113,10 +116,10 @@ Most of the definitions are found in the \verb|src| directory \ref{fig:langium-a
   \item[\code{generated/}] Contains artifacts produced from the grammar definition in the \code{.langium} file. This includes TypeScript AST type definitions,
     which are essential for further analysis and validation, as well as the preliminary parsed grammar rules formatted for the Chevrotain engine to generate parsers.
   \item[\textsf{Services}] The Services in Langium are a collection of utility classes and helper functions offered to every component of a language project via
-    dependency injection. They cover an extensive range of functionality, from LSP-specific features - such as providers for context-aware code completion, rich hover
+    dependency-injection. They cover an extensive range of functionality, from LSP-specific features - such as providers for context-aware code completion, rich hover
     tooltips, signature help, go-to-definition and find-references - to core language utilities that expose parsed documents as both AST and CST models, manage workspace
     state and context information (including indexing, scoping, and name resolution), synchronize the in-memory document model and perform validation checks.
-    Because the parts are wired up as an injectable service, precise consumptions of the capabilities needed is possible. Moreover, Langium enables developers to swap in
+    Because the parts are wired up as an injectable service, precise consumptions of the capabilities needed is possi ble. Moreover, Langium enables developers to swap in
     custom implementations of services by extending the corresponding default classes, and these services have to be wired into the DI container manually \ref{sec:customservices}.
     By default, the validation logic is located in the \code{language/} directory; subsequently, I placed additional custom services there.
     However, as these services grow in both number and complexity, it may be more appropriate to organize them in a dedicated module or folder.
@@ -124,9 +127,10 @@ Most of the definitions are found in the \verb|src| directory \ref{fig:langium-a
 
 Both \code{module} files share analogous responsibilities by encapsulating dependency-injection setup and service registration for the language environment.
 The generated module is produced automatically from the grammar definition and offers two DI fragments, one that registers shared-core services such as AST
-reflection and another that configures the parser, the Chevrotain grammar factory and language metadata. In contrast the main module is handwritten and imports
-Langium's default core and shared fragments, registers any custom services such as validators, scope providers and caches, invokes \code{inject} to assemble the full
-service container and exposes a \code{createServices} factory.
+reflection and another that configures the parser, the Chevrotain grammar factory and language metadata. In contrast the main module has to be manually extended and imports
+Langium's default core and shared services, registers any custom services such as validators, scope providers and caches, invokes \code{inject} to assemble the full
+service container and exposes a \code{createServices} factory. The shared services differentiate themselves in that they can be used cross-language and are not bound to
+specific implementations.
 
 Although the core logic resides in \code{/src}, other files of interest reside at the project root including configurations for npm/node and Langium itself:
 \code{language-configuration.json}, which governs editor behaviors such as comment delimiters, bracket pairs and auto-closing rules, and
@@ -167,9 +171,9 @@ a higher-level Abstract Syntax Tree (AST) \cite{langium-doc-lifecycle}, after wh
 to generate diagnostics, and the server finally publishes diagnostics, semantic tokens, completions, hover information, and other language-service results back to the editor via the
 Language Server Protocol.
 
-\subsection*{Language Server Protocol: Server client interaction}
+\subsection*{Language Server Protocol: Server-Client interaction}
 
-This illustration is a concise comprehension aid to show how the Language Server Protocol enables standardized communication between an editor (client) and a language server:
+This illustration is a comprehension aid to show how the Language Server Protocol handles standardized communication between an editor (client) and a language server:
 from the initialization handshake through document events, feature requests (completion, hover, definition, references, formatting, semantic tokens), and shutdown \cite{lspFeatures}.
 By defining a common set of well-specified messages and payloads, LSP serves as a generally applicable protocol that any editor and any language server can adopt to instantly
 share rich tooling capabilities without per-language or per-IDE custom integrations.
@@ -243,16 +247,15 @@ in accordance of conventional grammatical specifications. In addition, it must a
 and to determine the start from which a document should be parsed: \code{entry <RootRulename>: <production_result>}.
 In this case, the production result describes the whole parsable document and therefore acts as the root node of the AST.
 \\
-Also mention the LL (2) parsability and which tokens demand a 2 lookahead ()
 The code excerpts in the following sections are all taken from the original MiniProb Langium grammar (\ref{list:langium-grammar}) and, for easier digestion,
 have been truncated; each snippet focuses respectively on the core rules, the expression system, and the terminal and type definitions.
 \subsection*{Core rules}
 
-The code excerpt shown here defines 'MiniProb' as the grammar name and sets the \code{Program} rule as the entry point, adhering to nominal abstraction by
+The code excerpt shown below defines 'MiniProb' as the grammar name and sets the \code{Program} rule as the entry point, adhering to nominal abstraction by
 referring to each MiniProb-parsed document as a program. Lines of interest include line 8 - showing that every MiniProb program consists of some global declarations
 followed by at least on function - and line 4, which allows for file import of other MiniProb programs at the beginning of the document.
 
-The \code{FileImport} rule emulates the C preprocessor's "\#include" directive by requiring a literal match of the \code{#include} keyword followed by a
+The \code{FileImport} rule emulates the C preprocessor's "\#include" directive by requiring a literal match of the \texttt{\#include} keyword followed by a
 file name token (terminal \code{STRING}). Generally during parsing, each line is evaluated either against these fixed string keywords or against any matching terminals (order of match).
 As the file names have to be retrievable once it is time to compute the scope \ref{sec:customservices}, they are made accessible through the AST
 , with each FileImport-node containing a \code{file} property that stores the corresponding value.
@@ -300,6 +303,7 @@ Arg:
 .
 \end{minted}
 \captionof{listing}{Langium grammar core of MiniProb}
+\vspace{0.5em}
 
 \subsection*{Expressions}
 \begin{wrapfigure}{r}{0.40\textwidth}
@@ -335,7 +339,7 @@ Arg:
   \label{fig:op-prec-tree}
 \end{wrapfigure}
 
-Most of the expression system is omitted here, as it closely follows the \textit{operator-precedence grammar} pattern common to LL parsers \cite{operatorPrecedence}.
+Most of the expression system is omitted here, as it closely follows the \textit{operator-precedence grammar} pattern common to LL parsers.
 Typically, a grammar defines a series of nonterminals - each corresponding to a distinct operator-precedence level (from primaries up to full expressions) - and structures its productions so as to eliminate left recursion while preserving left-associative evaluation at every level.
 This arrangement guarantees that the parser can always choose the correct production with a single lookahead token, ensuring LL(1) compliance.
 
@@ -364,10 +368,11 @@ Primary infers Expression:
     '(' Expression ')';
 \end{minted}
 \captionof{listing}{Langium grammar expression system of MiniProb}
+\vspace{0.5em}
 
 \subsection*{Types and terminals}
 
-The excerpt displayed here, defines the types alongside its literal lexical vocabulary. The nonterminal \code{Type} accepts either the literal keyword \code{bool} or an \code{IntType}. An \code{IntType} specifies if it's signed and of what width and may be converted to an \code{IntArray} if brackets are present (line 4).
+The excerpt displayed below, defines the types alongside its literal lexical vocabulary. The nonterminal \code{Type} accepts either the literal keyword \code{bool} or an \code{IntType}. An \code{IntType} specifies if it's signed and of what width and may be converted to an \code{IntArray} if brackets are present (line 4).
 The \code{IntegerLiteral} rule recognizes numeric constants with an optional printable sign. Together, these productions ensure that boolean types, integers, and arrays are adequately represented according to the \code{MiniProb} definition (\ref{sec:miniprob}).
 
 Lexical terminals and hidden terminals are distinguished to control which tokens contribute to the final model. Terminals defined in lines 8-13 produce concrete tokens that appear in the parse tree as syntactic elements or attribute values; several of these declarations include a \code{returns} clause (lines 9, 12, 13) to instruct the parser on the semantic type to assign in
@@ -396,11 +401,12 @@ hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 \end{minted}
 \captionof{listing}{Terminals and patterns of MiniProb}
+\vspace{0.5em}
 
 \section{Type System and Semantic Checks}
 
 Langium offers the option of formalizing semantic checks and type systems through a static validation service which can be registered in its dependency-injection framework.
-Once registered, this service traverses the abstract syntax tree via a visitor pattern, invoking node-type specific validation routines at each step.
+Once registered, this service traverses the abstract syntax tree, invoking node-type specific validation routines at each step.
 The following sections describe the implementation of static semantics and the design of the type system.
 
 \subsection*{Validator}
@@ -428,6 +434,7 @@ initialize the complete set of services. As noted, every AST node is processed d
 }
 \end{minted}
 \captionof{listing}{Validation checks registrations}
+\vspace{0.5em}
 
 These validations are AST-driven logical procedures that verify specified conditions on the syntax tree. This means that validation is performed by statically inspecting
 each node's structure, attributes, and inter-node relationships, without relying on runtime information or any other states.
@@ -448,7 +455,7 @@ satisfies the criteria. As an example, consider the following \code{checkMainOcc
 }
 \end{minted}
 \captionof{listing}{Sample of validation process}
-\vspace{1em}
+\vspace{0.5em}
 
 Beyond basic AST-based checks, the analysis can be extended by incorporating models that augment node-level information with additional contextual or semantic data.
 In such addons, the AST serves as the seed from which richer representations and semantics are derived and maintained in dedicated structures.
@@ -469,7 +476,6 @@ and returns either a concrete \code{TypeDescription} or the \code{ErrorTypeDescr
 The cache is instantiated anew for each inference run on a node, eliminating any risk of residual data or cross-contamination and ensuring fully deterministic results.
 However, because it isn't persisted between runs, identical subtrees get re-evaluated for every node, which may introduce redundant work.
 Unlike incremental parsing systems that retain state to avoid reprocessing unchanged regions, this approach performs a complete, conventional traversal each time.
-??try the cache service and see if better???
 \\
 \\
 As an example of how the type system is employed in the validator, this code snippet creates a new cache (a map of \code{ASTNode} -> \code{TypeDescription}) and calls the
@@ -495,6 +501,7 @@ propagated message is displayed. Otherwise, the validator verifies that the reso
   }
 \end{minted}
 \captionof{listing}{Unary expression validation checks}
+\vspace{0.5em}
 
 \subsection{Semantic and type checks}
 
@@ -835,15 +842,16 @@ The \code{MiniProbScopeComputation} class extends Langium's \code{DefaultScopeCo
 The custom scope provider focuses specifically on two kinds of nodes - function calls (\code{FuncCall}) and variable references (\code{LVal}) - since
 these are the only AST nodes in the MiniProb grammar that establish referential links to other symbols. By subclassing the base \code{ScopeProvider} and overriding
 its \code{getScope} method, the provider can dispatch to specialized logic for these two cases while delegating all other node types back to the default implementation.
-This fallback invocation of \code{super.getScope()} outside of the \code{FuncCall} and \code{LVal} branches ensures that any other or future nodes will receive a fully defined and well-formed scope, preserving completeness of the overall resolution process.
+This fallback invocation of \code{super.getScope()} outside of the \code{FuncCall} and \code{Lval} branches ensures that any other or future nodes will receive a fully defined and well-formed scope, preserving completeness of the overall resolution process.
 
 Specialized handling is required because the language supports an import mechanism that selectively brings in only top-level definitions from other files, while excluding
-all other symbols, which are exported by default into a workspace-wide scope governed by the \code{IndexManager}. In the \code{LVal} branch, the provider correctly resolves
+all other symbols, which are exported by default into a workspace-wide scope governed by the \code{IndexManager}. In the \code{Lval} branch, the provider correctly resolves
 multiple identifiers declared in a single declarations statement (for example, \code{u8 i1, i2, i3}) distinguishing between block-scope and global variables, as well as including function parameters as valid resolutions.
-In the \code{FuncCall} branch, default behavior is overridden to prevent 'ghost' functions - placeholder symbols automatically invented for unresolved identifiers - and to include in-flight local declarations that appear before their closing delimiters in live editing scenarios (a solution which inspects raw \code{CST} text and may require future revision).
+In the \code{FuncCall} branch, default behavior is overridden to prevent 'ghost' functions - placeholder symbols automatically invented for unresolved identifiers - and to include in-flight local declarations
+that appear before their closing delimiter in live editing scenarios (a solution which inspects raw \code{CST} text and may require future revision).
 
-Because both \code{FuncCall} and \code{LVal} reference the same identifier token pattern, \code{getScope} is invoked for both branches on the same node.
-If distinguishing syntactic context - such as surrounding parentheses for calls or the presence of an equals sign for assignments - is present, the provider resolves only once aware of what path to choose.
+Because both \code{FuncCall} and \code{Lval} reference the same identifier token pattern, \code{getScope} is invoked for both branches on the same node.
+If distinguishing syntactic context - such as surrounding parentheses for calls or the presence of an equals sign for assignments - is present, the provider resolves only once, aware of what path to choose.
 \\
 
 The helper method below builds a resolution scope for symbols imported from other files. It first transforms each import entry into an absolute URI by joining the current
@@ -875,12 +883,12 @@ To improve performance, the retrieved descriptions are stored in a cache keyed b
   }
 \end{minted}
 \captionof{listing}{Inclusion of imported file's top-level scope}
-\vspace{0.3em}
+\vspace{0.5em}
 
-In this snippet, the overridden \code{getScope} method first confirms that the current resolution request pertains to any \code{reference} context by checking
+In the snippet below, the overridden \code{getScope} method first confirms that the current resolution request pertains to any \code{reference} context by checking
 \code{context.property} and container presence (lines 1-3), then locates the enclosing program node. Upon detecting a function-call node (line 11), it filters the program's
 function list to remove placeholder or 'ghost' entries (line 7). A local cache - persistent throughout the whole linking phase - is
-then used to retrieve or populate descriptors for these real functions (lines 11-22), encapsulating them within Langium's offered scope structure. If file-level imports are present
+then used to retrieve or populate descriptors for the real functions (lines 11-22), encapsulating them within Langium's offered scope structure. If file-level imports are present
 (lines 8, 26-30), a helper routine leverages the global \code{IndexManager} to fetch additional symbols from imported modules, yielding a secondary stream of descriptors.
 The in-file and imported descriptors, together with any local declarations, are merged into a composite scope (lines 32-34) that is returned for code completion and reference
 linking; all other situations fall back to \code{super.getScope()} (lines 38), preserving the default resolution behavior.
@@ -926,11 +934,10 @@ linking; all other situations fall back to \code{super.getScope()} (lines 38), p
     return super.getScope(context);
 }}
 \end{minted}
+\captionof{listing}{Final scope formation and provision}
+\vspace{0.5em}
 
 \section{VS Code Extension Points}
-textmate highlighting lang-config.json
-
-??maybe ref from the firt mention of the extension (structure)
 
 The changes made to the files associated with the extension's build are minimal yet essential. The extension's entry point remains \code{main.ts} in the
 \code{extension/} directory, while \code{tmLanguage.json} serves as the primary configuration for syntax highlighting, specifying the label and groups used to color tokens.
