@@ -978,5 +978,14 @@ the tests interact directly with CST and AST nodes, making precise assertions th
 
 \chapter{Conclusion}
 
-reqjuiremnts fullfilled, code completeion lacks in basic stucutrues only for linked references.
-conlsuio: mention no dode comülpeteion for structures only refs, not optimal and how it would be implemetned
+In this work, a Visual Studio Code extension for MiniProb was developed that, by and large, satisfies the functional requirements set out at the outset.
+Syntax highlighting for keywords, operators, literals and identifiers is fully realized; data type validation and real-time semantic analysis - including detection of
+undefined variables and invalid constructs - are wholly supported by a combination of custom Langium services and its built-in validation pipeline. Error messages
+appear immediately as users edit their code, albeit with the caveat that some default Chevrotain diagnostics remain terse when rules are incomplete. Basic code
+completion is operational for referenced names and variables, but full support for language constructs awaits the implementation of a dedicated CompletionProvider.
+
+On the non-functional side, the extension responds to edits within 5-200ms for average sized files, comfortably within the 100-250ms target, and even large files
+(approx. 10000 lines) load and validate within one second - though this does not hold on weaker machines (>=2 seconds). Compatibility with the latest VS Code
+release is ensured via up-to-date Langium and LSP dependencies. Comprehensive installation and usage instructions are provided both in this thesis and in the project's
+GitHub repository, facilitating future maintenance and feature extension. Overall, the extension meets its core objectives, delivering a responsive, semantically aware
+authoring environment for probabilistic DSLs; remaining work centers on enriching code-completion capabilities to close the final gap in our functional specification.
