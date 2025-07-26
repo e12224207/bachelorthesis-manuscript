@@ -27,6 +27,16 @@
 \usepackage{caption}
 \usepackage{multicol}
 \usepackage{microtype}
+\usepackage{fancyhdr}
+\fancypagestyle{titlepage}{%
+  \fancyhf{}                        % clear all header and footer fields
+  \renewcommand{\headrulewidth}{0pt} % no rule in the header
+  \renewcommand{\footrulewidth}{0.4pt}% draw a rule above the footer
+  \fancyfoot[C]{\small
+    Technische Universität Wien\\
+    A-1040 Wien Karlsplatz 13 \quad Tel.\ +43-1-58801-0 \quad www.tuwien.at
+  }
+}
 \usepackage{titlesec}
 \titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{}{0pt}{}
 \titlespacing*{\chapter}{0pt}{1.5em}{1em}
@@ -99,7 +109,7 @@
 \Author{\authorname}
 \Title{\thesistitle}
 \Language{de-AT}
-\Keywords{a\sep list\sep of\sep keywords}
+\Keywords{VS Code extension\sep Langium\sep Languages\sep Language tooling}
 \Publisher{TU Wien}
 \Subject{Thesis}
 \end{filecontents*}
@@ -117,9 +127,10 @@
 
 %—— German Title Page ——
 \begin{titlepage}
+  \thispagestyle{titlepage}
   % Top‑left TU Wien logo
   \noindent
-  \includegraphics[width=0.3\textwidth]{graphics/tuWienLogo.png}
+  \includegraphics[width=0.4\textwidth]{graphics/tuWienLogo.png}
 
   % push down to center the main block
   \vspace*{\fill}
@@ -169,9 +180,10 @@
 
 %—— English Title Page ——
 \begin{titlepage}
+  \thispagestyle{titlepage}
   % Top‑left TU Wien logo
   \noindent
-  \includegraphics[width=0.3\textwidth]{graphics/tuWienLogo.png}
+  \includegraphics[width=0.4\textwidth]{graphics/tuWienLogo.png}
 
   % push down to center the main block
   \vspace*{\fill}
